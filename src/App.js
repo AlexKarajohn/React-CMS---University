@@ -1,24 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+//NPM imports
+import {Router} from "react-router-dom";
+import { createBrowserHistory } from 'history';
+import Unauthorized from './components/unauthorized/Unauthorized';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { purple } from '@mui/material/colors';
+import Menu from './components/layout/menu/menu';
+
+export const history = createBrowserHistory()
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: purple[500],
+    },
+    secondary: {
+      main: '#11cb5f',
+    },
+  },
+  components:{
+    MuiPaper:{
+      styleOverrides:{
+        outlined:{
+          padding:20
+        }
+      }
+    }
+  }
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router history={history}>
+      <ThemeProvider theme={theme}>
+        <div className="grid">
+          <Menu />
+          <Unauthorized />
+        </div>
+      </ThemeProvider>
+    </Router>  
   );
 }
 
