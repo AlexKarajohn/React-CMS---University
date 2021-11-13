@@ -2,31 +2,11 @@
 import {Router} from "react-router-dom";
 import { createBrowserHistory } from 'history';
 import Unauthorized from './components/unauthorized/Unauthorized';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { purple } from '@mui/material/colors';
+import { ThemeProvider } from '@mui/material/styles';
+
 import Menu from './components/layout/menu/menu';
+import theme from './components/utils/ui/Theme'
 
-export const history = createBrowserHistory()
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: purple[500],
-    },
-    secondary: {
-      main: '#11cb5f',
-    },
-  },
-  components:{
-    MuiPaper:{
-      styleOverrides:{
-        outlined:{
-          padding:20
-        }
-      }
-    }
-  }
-});
 
 function App() {
   return (
@@ -42,3 +22,4 @@ function App() {
 }
 
 export default App;
+export const history = createBrowserHistory()

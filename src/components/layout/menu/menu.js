@@ -28,7 +28,7 @@ const Menu = () =>{
     return (
         <div>
             <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
+                <AppBar position="static" color="primary">
                     <Toolbar>
                         <Button color="inherit" style={{width: 100}} onClick={hangeLoginStatusHandler}>
                             {loginStatus ? 'Log Out' : 'Log In'} 
