@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect ,useState} from 'react';
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { layoutActions } from "../../../store/layout-slice";
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
@@ -14,9 +14,13 @@ import LoginIcon from '@mui/icons-material/Login';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import PasswordIcon from '@mui/icons-material/Password';
+import {history } from '../../../App'
+import SuccessForm from '../layout/successForm/SuccessForm'
+import { login } from '../../../store/authorization-slice';
 const Login = () => {
     const dispatch = useDispatch();
     //Input Data
+    const loginOperation = useSelector(state=>state.authorization.operations.login)
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
     //Error 
@@ -31,13 +35,20 @@ const Login = () => {
     },[dispatch])
 
     useEffect(()=>{
-        if(emailErrorText || passwordErrorText)
+        if(emailErrorText.trim() || passwordErrorText.trim())
             setHasError(true);
         else
             setHasError(false);
     },[emailErrorText,passwordErrorText])
 
-
+    useEffect(()=>{
+        if(loginOperation.error === 'INVALID_CREDENTIALS'){
+            setEmailErrorText('Credentials do not match any user.')
+            setPasswordErrorText('Credentials do not match any user.')
+        }
+        else
+            setHasError(true);
+    },[loginOperation])
     const toggleShowPasswordHandler= () => {
         setShowPassword(prev=>!prev);
     }
@@ -82,17 +93,24 @@ const Login = () => {
         if(!emailValidation() || !passwordValidation() )
             return
         console.log('dispatch')
+        dispatch(login(email,password));
     }
 
-
+    if(loginOperation.status === 'Success'){
+        setTimeout(()=>{
+            history.push('/auth/dashboard')
+        },2000)
+        return <Paper variant='outlined' sx={{ 
+            width: [
+                '100%',
+                '100%',
+                '50%',
+            ]
+        }}>
+            <SuccessForm text="LogIn in was successful!"/>
+        </Paper>
+    }
     return ( 
-        <Grid
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            style={{height:'100%'}}
-        >
             <Paper variant='outlined' sx={{ 
                 width: [
                     '100%',
@@ -122,7 +140,7 @@ const Login = () => {
                         </Grid>
                         <Grid item>
                             <Typography>
-                                Login !
+                                Login
                             </Typography>
                         </Grid>
                     </Grid>
@@ -144,7 +162,7 @@ const Login = () => {
                             onChange={emailChangeHandler}
                             error={emailErrorText.trim().length>0}
                             helperText={emailErrorText}
-                            onFocus={emailChangeHandler}
+                            onFocus={validateHandler}
                         />
                     </Grid>
                     <Grid item sx={{width:'100%'}}>
@@ -169,7 +187,7 @@ const Login = () => {
                             onChange={passwordChangeHandler}
                             error={passwordErrorText.trim().length>0}
                             helperText={passwordErrorText}
-                            onFocus={passwordChangeHandler}
+                            onFocus={validateHandler}
 
                         />
                     </Grid>
@@ -188,11 +206,17 @@ const Login = () => {
                         >
                                 Submit
                         </Button>
+                        <Typography variant="subtitle2" sx={{marginTop:'5px'}}>
+                            <a href="/auth/passwordRecovery" onClick={(e)=>{
+                                e.preventDefault();
+                                history.push('/auth/passwordRecovery')
+                            }}> 
+                                Forgot Password?
+                            </a>
+                        </Typography>
                     </Grid> 
                 </Grid>
             </Paper>
-        </Grid>
-		
     )
 }
 export default Login;

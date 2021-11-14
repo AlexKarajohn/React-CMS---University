@@ -29,11 +29,20 @@ const theme = createTheme({
                 }
             }
         },
+        MuiCard:{
+            styleOverrides:{
+                root: {
+                    padding: 20
+                }
+            }
+        },
         MuiButton:{
             styleOverrides:{
                 contained: {
                     height: 50,
-                    maxWidth:'400px'
+                    maxWidth:'400px',
+                    marginTop:20
+
                 }
             }
         },

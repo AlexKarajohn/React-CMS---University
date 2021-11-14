@@ -1,6 +1,6 @@
 import { Grid,Paper } from '@mui/material';
 import { useEffect,useState } from 'react';
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { layoutActions } from "../../../store/layout-slice";
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -13,8 +13,13 @@ import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import PasswordIcon from '@mui/icons-material/Password';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import validator from 'validator'
+import {history } from '../../../App'
+import SuccessForm from '../layout/successForm/SuccessForm';
+import { signUp } from '../../../store/authorization-slice';
+
 const SignUp = (props) => {
 	const dispatch = useDispatch();
+    const signUpOperation = useSelector(state=>state.authorization.operations.signUp)
     //Input Data
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
@@ -33,9 +38,31 @@ const SignUp = (props) => {
     useEffect(()=>{
         dispatch(layoutActions.setLocation('Sign Up'))
     },[dispatch])
+    useEffect(()=>{
+        if(signUpOperation.error !== undefined){
+            let errorArray = [signUpOperation.error];
+            if(signUpOperation.error.includes(',')){
+                errorArray = signUpOperation.error.split(',')
+            }
+            errorArray.forEach(error=>{
+                switch(error){
+                    case 'EMAIL_INUSE' : {
+                        setEmailErrorText('Email already in use.')
+                        break;
+                    } 
+                    case 'INVALID_SERIAL_KEY_NONEXISTENT' :{
+                        setSerialKeyErrorText('Serial Key does not exist')
+                        break;
+                    }
+                    default: 
+                        setHasError(true);
+                }
+            })
+        }
+    },[signUpOperation])
 
     useEffect(()=>{
-        if(emailErrorText || passwordErrorText || confirmPasswordErrorText || serialKeyErrorText)
+        if(emailErrorText.trim() || passwordErrorText.trim() || confirmPasswordErrorText.trim() || serialKeyErrorText.trim())
             setHasError(true);
         else
             setHasError(false);
@@ -123,16 +150,24 @@ const SignUp = (props) => {
         if(!emailValidation() || !passwordValidation() || !confirmPasswordValidation() || !serialKeyValidation())
             return
         console.log('dispatch')
+        dispatch(signUp(email,password,confirmPassword,email,serialKey))
     }
 
+    if(signUpOperation.status === 'Success'){
+        setTimeout(()=>{
+            history.push('/auth/login')
+        },2000)
+        return <Paper variant='outlined' sx={{ 
+            width: [
+                '100%',
+                '100%',
+                '50%',
+            ]
+        }}>
+            <SuccessForm text="SignUp was successful!"/>
+        </Paper>
+    }
 	return (
-		<Grid
-            container
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            style={{height:'100%'}}
-        >
             <Paper variant='outlined' sx={{ 
                 width: [
                     '100%',
@@ -162,7 +197,7 @@ const SignUp = (props) => {
                         </Grid>
                         <Grid item>
                             <Typography>
-                                Sign Up!
+                                Sign Up
                             </Typography>
                         </Grid>
                     </Grid>
@@ -214,53 +249,57 @@ const SignUp = (props) => {
                     </Grid>
                     <Grid item sx={{width:'100%'}}>
                         <TextField 
-                        id="Corfirm" 
-                        label="Corfirm Password" 
-                        variant="outlined" 
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start" >
-                                <PasswordIcon />
-                              </InputAdornment>
-                            ),
-                            endAdornment: (
-                                <InputAdornment position="end" onClick={toggleShowConfirmPasswordHandler}>
-                                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            id="Confirm" 
+                            label="Confirm Password" 
+                            variant="outlined" 
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            InputProps={{
+                                startAdornment: (
+                                <InputAdornment position="start" >
+                                    <PasswordIcon />
                                 </InputAdornment>
-                            )
-                        }}
-                        value={confirmPassword}
-                        onChange={confirmPasswordChangeHandler}
-                        error={confirmPasswordErrorText.trim().length>0}
-                        helperText={confirmPasswordErrorText}
-                        onFocus={confirmPasswordChangeHandler}
+                                ),
+                                endAdornment: (
+                                    <InputAdornment position="end" onClick={toggleShowConfirmPasswordHandler}>
+                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                    </InputAdornment>
+                                )
+                            }}
+                            value={confirmPassword}
+                            onChange={confirmPasswordChangeHandler}
+                            error={confirmPasswordErrorText.trim().length>0}
+                            helperText={confirmPasswordErrorText}
+                            onFocus={confirmPasswordChangeHandler}
                         />
                     </Grid>
                     <Grid item sx={{width:'100%'}}>
                         <TextField 
-                        id="Serial" 
-                        label="Serial Key" 
-                        variant="outlined" 
-                        InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                <VpnKeyIcon />
-                              </InputAdornment>
-                            ),
-                          }}
-                        value={serialKey}
-                        onChange={serialKeyChangeHandler}
-                        error={serialKeyErrorText.trim().length>0}
-                        helperText={serialKeyErrorText}
-                        onFocus={serialKeyChangeHandler}
+                            id="Serial" 
+                            label="Serial Key" 
+                            variant="outlined" 
+                            InputProps={{
+                                startAdornment: (
+                                <InputAdornment position="start">
+                                    <VpnKeyIcon />
+                                </InputAdornment>
+                                ),
+                            }}
+                            value={serialKey}
+                            onChange={serialKeyChangeHandler}
+                            error={serialKeyErrorText.trim().length>0}
+                            helperText={serialKeyErrorText}
+                            onFocus={serialKeyChangeHandler}
                         />
                     </Grid> 
                     <Grid item container
                         direction="column"
                         justifyContent="center"
                         alignItems="center"
-                        sx={{width:'100%'}}>
+                        sx={{width:'100%'}}
+                    >
+                        <Typography mb={2}>
+                            By clicking Submit, you agree to our <a  target="_blank" rel="noreferrer" href="/termsAndConditions">Terms</a>.
+                        </Typography>
                         <Button 
                             variant="contained" 
                             sx={{width:'100%'}} 
@@ -268,13 +307,11 @@ const SignUp = (props) => {
                             disabled={hasError}
                             onMouseEnter={validateHandler}    
                         >
-                                Submit
+                            Submit
                         </Button>
                     </Grid> 
                 </Grid>
             </Paper>
-        </Grid>
-		
 	);
 };
 export default SignUp;
