@@ -1,8 +1,9 @@
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { useEffect,useState } from 'react';
-import { useDispatch } from "react-redux";
-import { layoutActions } from "../../../store/layout-slice";
+import { useDispatch,useSelector } from "react-redux";
+import { layoutActions  } from "../../../store/layout-slice";
+import { authorizationActions, passwordRecovery } from '../../../store/authorization-slice';
 import validator from 'validator'
 import TextField from '@mui/material/TextField';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
@@ -10,7 +11,8 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Button from '@mui/material/Button';
-
+import { history } from '../../../App';
+import SuccessForm from '../layout/successForm/SuccessForm';
 const PasswordRecovery = () =>{
     const dispatch = useDispatch();
     //Input Data
@@ -18,6 +20,7 @@ const PasswordRecovery = () =>{
     //Error 
     const [hasError,setHasError] = useState(false);
     const [emailErrorText,setEmailErrorText] = useState(' ');
+    const passwordRecoveryOperation = useSelector(state=>state.authorization.operations.passwordRecovery)
     useEffect(()=>{
         dispatch(layoutActions.setLocation('Password Recovery'))
     },[dispatch])
@@ -51,9 +54,24 @@ const PasswordRecovery = () =>{
     const submitHandler = () => {
         if(!emailValidation())
             return
-        console.log('dispatch')
+        dispatch(passwordRecovery(email))
     }
 
+    if(passwordRecoveryOperation.status === 'Success'){
+        setTimeout(()=>{
+            dispatch(authorizationActions.setOperations({function:'passwordRecovery',status:''}))
+            history.push('/')
+        },4000)
+        return <Paper variant='outlined' sx={{ 
+            width: [
+                '100%',
+                '100%',
+                '50%',
+            ]
+        }}>
+            <SuccessForm text="An email has been sent with further instructions!"/>
+        </Paper>
+    }
     return (
             <Paper variant='outlined' sx={{ 
                 width: [
@@ -119,7 +137,7 @@ const PasswordRecovery = () =>{
                             variant="contained" 
                             sx={{width:'100%'}} 
                             onClick={submitHandler} 
-                            disabled={hasError}
+                            disabled={hasError || passwordRecoveryOperation.status==='Pending'}
                             onMouseEnter={validateHandler}    
                         >
                                 Submit

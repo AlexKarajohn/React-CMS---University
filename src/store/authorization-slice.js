@@ -11,11 +11,15 @@ const initialAuthorizationState = {
             status:'',
             error:undefined
         },
-        forgotPassword:{
+        passwordRecovery:{
             status:'',
             error:undefined
         },
-        updatePassword:{
+        passwordOverwrite:{
+            status:'',
+            error:undefined
+        },
+        accountActivation:{
             status:'',
             error:undefined
         }
@@ -90,7 +94,7 @@ export const login = (email,password) =>{
                     status:'Success',
                     function:'login'
                 }))
-                dispatch(authorizationActions.setAuthorizationStatus(true))
+                localStorage.setItem('token',`Bearer ${result.data.loginUser.token}`);
             }).catch(err=>{
                 dispatch(authorizationActions.setOperations({
                     status:'Failed',
@@ -140,6 +144,129 @@ export const signUp = (name,password,confirmPassword,email,serial) =>{
             .catch((err)=>{
                 dispatch(authorizationActions.setOperations({
                     function: 'signUp',
+                    status: 'Failed',
+                    error: 'Something went wrong.'
+                }))
+            }) 
+    }
+}
+export const passwordRecovery = (email) =>{
+    return (dispatch) => {
+        dispatch(authorizationActions.setOperations({
+            function: 'passwordRecovery',
+            status: 'Pending'
+        }))
+        const graphqlQuery= {
+            query: `
+                mutation passwordRecovery($userInput: String!){
+                    passwordRecovery(userInput: $userInput)
+                }
+            `,variables:{
+                userInput:email,
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then((res)=>{
+                if(res?.errors){
+                    dispatch(authorizationActions.setOperations({
+                        function: 'passwordRecovery',
+                        status: 'Failed',
+                        error: res.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(authorizationActions.setOperations({
+                    function: 'passwordRecovery',
+                    status: 'Success',
+                }))
+            })
+            .catch((err)=>{
+                dispatch(authorizationActions.setOperations({
+                    function: 'passwordRecovery',
+                    status: 'Failed',
+                    error: 'Something went wrong.'
+                }))
+            }) 
+    }
+}
+
+export const passwordOverwrite = (email,password,confirmPassword,token) =>{
+    return (dispatch) => {
+        dispatch(authorizationActions.setOperations({
+            function: 'passwordOverwrite',
+            status: 'Pending'
+        }))
+        const graphqlQuery= {
+            query: `
+                mutation passwordOverwrite($userInput: passwordOverwriteInput!){
+                    passwordOverwrite(userInput: $userInput)
+                }
+            `,variables:{
+                userInput:{
+                    email,
+                    password,
+                    confirmPassword,
+                    token
+                },
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then((res)=>{
+                if(res?.errors){
+                    dispatch(authorizationActions.setOperations({
+                        function: 'passwordOverwrite',
+                        status: 'Failed',
+                        error: res.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(authorizationActions.setOperations({
+                    function: 'passwordOverwrite',
+                    status: 'Success',
+                }))
+            })
+            .catch((err)=>{
+                dispatch(authorizationActions.setOperations({
+                    function: 'passwordOverwrite',
+                    status: 'Failed',
+                    error: 'Something went wrong.'
+                }))
+            }) 
+    }
+}
+export const accountActivation = (token) =>{
+    return (dispatch) => {
+        dispatch(authorizationActions.setOperations({
+            function: 'accountActivation',
+            status: 'Pending'
+        }))
+        const graphqlQuery= {
+            query: `
+                mutation accountActivation($userInput: String!){
+                    accountActivation(userInput: $userInput)
+                }
+            `,variables:{
+                userInput: token
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then((res)=>{
+                if(res?.errors){
+                    dispatch(authorizationActions.setOperations({
+                        function: 'accountActivation',
+                        status: 'Failed',
+                        error: res.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(authorizationActions.setOperations({
+                    function: 'accountActivation',
+                    status: 'Success',
+                }))
+            })
+            .catch((err)=>{
+                dispatch(authorizationActions.setOperations({
+                    function: 'accountActivation',
                     status: 'Failed',
                     error: 'Something went wrong.'
                 }))

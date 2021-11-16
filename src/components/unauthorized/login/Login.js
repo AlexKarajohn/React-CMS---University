@@ -16,7 +16,7 @@ import Button from '@mui/material/Button';
 import PasswordIcon from '@mui/icons-material/Password';
 import {history } from '../../../App'
 import SuccessForm from '../layout/successForm/SuccessForm'
-import { login } from '../../../store/authorization-slice';
+import { authorizationActions, login } from '../../../store/authorization-slice';
 const Login = () => {
     const dispatch = useDispatch();
     //Input Data
@@ -46,8 +46,6 @@ const Login = () => {
             setEmailErrorText('Credentials do not match any user.')
             setPasswordErrorText('Credentials do not match any user.')
         }
-        else
-            setHasError(true);
     },[loginOperation])
     const toggleShowPasswordHandler= () => {
         setShowPassword(prev=>!prev);
@@ -97,7 +95,10 @@ const Login = () => {
     }
 
     if(loginOperation.status === 'Success'){
+        console.log(loginOperation)
         setTimeout(()=>{
+            dispatch(authorizationActions.setAuthorizationStatus(true))
+            dispatch(authorizationActions.setOperations({function:'login',status:''}))
             history.push('/auth/dashboard')
         },2000)
         return <Paper variant='outlined' sx={{ 
@@ -109,6 +110,7 @@ const Login = () => {
         }}>
             <SuccessForm text="LogIn in was successful!"/>
         </Paper>
+        
     }
     return ( 
             <Paper variant='outlined' sx={{ 
@@ -201,7 +203,7 @@ const Login = () => {
                             variant="contained" 
                             sx={{width:'100%'}} 
                             onClick={submitHandler} 
-                            disabled={hasError}
+                            disabled={hasError || loginOperation.status === 'Pending'}
                             onMouseEnter={validateHandler}    
                         >
                                 Submit

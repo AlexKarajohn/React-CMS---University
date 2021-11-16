@@ -15,7 +15,7 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import validator from 'validator'
 import {history } from '../../../App'
 import SuccessForm from '../layout/successForm/SuccessForm';
-import { signUp } from '../../../store/authorization-slice';
+import { authorizationActions,signUp } from '../../../store/authorization-slice';
 
 const SignUp = (props) => {
 	const dispatch = useDispatch();
@@ -149,12 +149,12 @@ const SignUp = (props) => {
     const submitHandler = () => {
         if(!emailValidation() || !passwordValidation() || !confirmPasswordValidation() || !serialKeyValidation())
             return
-        console.log('dispatch')
         dispatch(signUp(email,password,confirmPassword,email,serialKey))
     }
 
     if(signUpOperation.status === 'Success'){
         setTimeout(()=>{
+            dispatch(authorizationActions.setOperations({function:'signUp',status:''}))
             history.push('/auth/login')
         },2000)
         return <Paper variant='outlined' sx={{ 
@@ -304,7 +304,7 @@ const SignUp = (props) => {
                             variant="contained" 
                             sx={{width:'100%'}} 
                             onClick={submitHandler} 
-                            disabled={hasError}
+                            disabled={hasError || signUpOperation.status==='Pending'} 
                             onMouseEnter={validateHandler}    
                         >
                             Submit

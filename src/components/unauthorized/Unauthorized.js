@@ -5,7 +5,7 @@ import SignUp from './signup/SignUp'
 import Home from './home/Home'
 import PasswordRecovery from './passwordRecovery/PasswordRecovery'
 import passwordChange from './passwordChange/PasswordChange'
-import SignUpConfirmation from './signup/SignUpConfirmation';
+import AccountActivation from './signup/AccountActivation';
 import TermsAndConditions from './termsAndConditions/TermsAndConditions'
 const Unauthorized = () => {
     return (
@@ -19,7 +19,7 @@ const Unauthorized = () => {
             <Switch> 
                     <Route path="/auth/login" component={Login} />
                     <Route path="/auth/signup" component={SignUp} />
-                    <Route path="/auth/signUpConfirmation/:confirmationToken" component={SignUpConfirmation} />
+                    <Route path="/auth/accountActivation/:token" component={AccountActivation} />
                     <Route path="/auth/passwordRecovery" component={PasswordRecovery} />
                     <Route path="/auth/passwordChange/:resetToken" component={passwordChange} />
                     <Route path="/termsAndConditions" component={TermsAndConditions} />

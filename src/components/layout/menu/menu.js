@@ -8,7 +8,7 @@ import SwipeMenu from './swipeMenu/swipeMenu';
 import { useSelector,useDispatch } from 'react-redux';
 import { history } from '../../../App';
 import { authorizationActions } from '../../../store/authorization-slice';
-
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 
 
 const Menu = () =>{
@@ -16,6 +16,7 @@ const Menu = () =>{
     const dispatch = useDispatch();
     const loginStatus = useSelector(state=> state.authorization.authorizationStatus)
     const urlLocation = useSelector(state=> state.layout.location)
+    const loggedInEmail = useSelector(state=> state.user.user.email)
     const hangeLoginStatusHandler = () => {
         if(loginStatus){
             localStorage.removeItem('token');
@@ -26,27 +27,47 @@ const Menu = () =>{
         }
     }
     return (
-        <div>
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="static" color="primary">
                     <Toolbar>
-                        <Button color="inherit" style={{width: 100}} onClick={hangeLoginStatusHandler}>
+                        <Button color="inherit" style={{width: 120,height:60}} onClick={hangeLoginStatusHandler} variant='outlined'>
                             {loginStatus ? 'Log Out' : 'Log In'} 
                         </Button>
                         <Grid container
                             direction="row"
                             justifyContent="flex-end"
                             alignItems="center"
-                            style={{paddingRight:40}}>
-                                <Typography variant='h5'>
-                                    {urlLocation}
-                                </Typography>
+                            style={{paddingRight:40,width:'100%'}}
+                            sx={{alignItems: 'flex-end'}}
+
+                        >
+                            <Typography variant='h5' align='right'>
+                                {urlLocation}
+                            </Typography>
                         </Grid>
                         <SwipeMenu/>
                     </Toolbar>
+                    { loginStatus && <>
+                     
+                        <Grid container
+                            direction="row"
+                            justifyContent="center"
+                            alignItems="center"
+                            style={{width:'100%',paddingBottom:10}}
+                            columnSpacing={2}
+                        >
+                            <Grid item>
+                                <AccountCircleOutlinedIcon /> 
+                            </Grid>
+                            <Grid item component={Typography}>
+                                {loggedInEmail}
+                            </Grid> 
+                        </Grid>
+                        </>
+                    }
                 </AppBar>
+                
             </Box>
-        </div>
   );
 }
 

@@ -1,7 +1,7 @@
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { useEffect,useState } from 'react';
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { layoutActions } from "../../../store/layout-slice";
 import validator from 'validator'
 import TextField from '@mui/material/TextField';
@@ -14,7 +14,8 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PasswordIcon from '@mui/icons-material/Password';
-
+import { authorizationActions, passwordOverwrite } from '../../../store/authorization-slice';
+import SuccessForm from '../layout/successForm/SuccessForm';
 const PasswordChange = ({match,location}) => {
     const dispatch = useDispatch();
     const resetToken = match.params.resetToken;
@@ -22,6 +23,7 @@ const PasswordChange = ({match,location}) => {
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
     const [confirmPassword,setConfirmPassword] = useState('');
+    const [invalidToken,setInvalidToken] = useState(false);
     //Error 
     const [hasError,setHasError] = useState(false);
     const [emailErrorText,setEmailErrorText] = useState(' ');
@@ -30,7 +32,7 @@ const PasswordChange = ({match,location}) => {
     //Ui indicators
     const [showPassword,setShowPassword] = useState(false);
     const [showConfirmPassword,setShowConfirmPassword] = useState(false);
-    
+    const passwordOverwriteOperation = useSelector(state=>state.authorization.operations.passwordOverwrite)
     useEffect(()=>{
         dispatch(layoutActions.setLocation('Change Password'))
     },[dispatch])
@@ -44,6 +46,32 @@ const PasswordChange = ({match,location}) => {
             setHasError(false);
     },[emailErrorText,passwordErrorText,confirmPasswordErrorText])
 
+    useEffect(()=>{
+        if(passwordOverwriteOperation.error !== undefined){
+            let errorArray = [passwordOverwriteOperation.error];
+            if(passwordOverwriteOperation.error.includes(',')){
+                errorArray = passwordOverwriteOperation.error.split(',')
+            }
+            errorArray.forEach(error=>{
+                switch(error){
+                    case 'INVALID_USER' : {
+                        setEmailErrorText('Email does not exist')
+                        break;
+                    } 
+                    case 'INVALID_RESET_TOKEN' :{
+                        setInvalidToken(true)
+                        break;
+                    }
+                    case 'TOKEN_EXPIRED' :{
+                        setInvalidToken(true)
+                        break;
+                    }
+                    default: 
+                        setHasError(true);
+                }
+            })
+        }
+    },[passwordOverwriteOperation])
     const toggleShowPasswordHandler= () => {
         setShowPassword(prev=>!prev);
     }
@@ -110,7 +138,37 @@ const PasswordChange = ({match,location}) => {
     const submitHandler = () => {
         if(!emailValidation() || !passwordValidation() || !confirmPasswordValidation() )
             return
-        console.log('dispatch')
+        dispatch(passwordOverwrite(email,password,confirmPassword,resetToken))
+    }
+    if(invalidToken){
+        setTimeout(()=>{
+            dispatch(authorizationActions.setOperations({function:'passwordOverwrite',status:''}))
+            history.push('/auth/login')
+        },4000)
+        return <Paper variant='outlined' sx={{ 
+            width: [
+                '100%',
+                '100%',
+                '50%',
+            ]
+        }}>
+            <SuccessForm text="Invalid password change attempt, the password recovery link is valid for 15 minutes!" style={{color:'red'}}/>
+        </Paper>
+    }
+    if(passwordOverwriteOperation.status === 'Success'){
+        setTimeout(()=>{
+            dispatch(authorizationActions.setOperations({function:'passwordOverwrite',status:''}))
+            history.push('/auth/login')
+        },4000)
+        return <Paper variant='outlined' sx={{ 
+            width: [
+                '100%',
+                '100%',
+                '50%',
+            ]
+        }}>
+            <SuccessForm text="Password was successfully changed!"/>
+        </Paper>
     }
     return (
         <Paper variant='outlined' sx={{ 
@@ -227,7 +285,7 @@ const PasswordChange = ({match,location}) => {
                         variant="contained" 
                         sx={{width:'100%'}} 
                         onClick={submitHandler} 
-                        disabled={hasError}
+                        disabled={hasError || passwordOverwriteOperation.status==='Pending'}
                         onMouseEnter={validateHandler}    
                     >
                             Submit
