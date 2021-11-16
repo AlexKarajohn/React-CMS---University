@@ -6,17 +6,22 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import SwipeMenu from './swipeMenu/swipeMenu';
 import { useSelector,useDispatch } from 'react-redux';
-import { history } from '../../../App';
+
 import { authorizationActions } from '../../../store/authorization-slice';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-
-
-const Menu = () =>{
+import routes from '../../../assets/routes'
+import { useState} from 'react';
+import { withRouter } from 'react-router-dom';
+const Menu = ({ history }) => {
+    const [title,setTitle] = useState(routes.find(route=>route.path === window.location.pathname).title || '404')
+    history.listen((location, action) => {
+        setTitle(routes.find(route=>route.path === location.pathname).title || '404')
+    });
     
     const dispatch = useDispatch();
     const loginStatus = useSelector(state=> state.authorization.authorizationStatus)
-    const urlLocation = useSelector(state=> state.layout.location)
     const loggedInEmail = useSelector(state=> state.user.user.email)
+
     const hangeLoginStatusHandler = () => {
         if(loginStatus){
             localStorage.removeItem('token');
@@ -26,6 +31,9 @@ const Menu = () =>{
             history.push('/auth/login');
         }
     }
+
+        
+
     return (
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="static" color="primary">
@@ -42,7 +50,7 @@ const Menu = () =>{
 
                         >
                             <Typography variant='h5' align='right'>
-                                {urlLocation}
+                                {title}
                             </Typography>
                         </Grid>
                         <SwipeMenu/>
@@ -71,4 +79,4 @@ const Menu = () =>{
   );
 }
 
-export default Menu;
+export default withRouter(Menu);

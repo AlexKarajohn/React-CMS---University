@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { layoutActions } from "../../../store/layout-slice";
+
+import { useSelector } from "react-redux";
+
 import Paper from '@mui/material/Paper';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
@@ -11,10 +11,7 @@ import NotificationImportantIcon from '@mui/icons-material/NotificationImportant
 import Badge from '@mui/material/Badge';
 import SecurityIcon from '@mui/icons-material/Security';
 const Dashboard = () => {
-    const dispatch = useDispatch();
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Dashboard'))
-    },[dispatch])
+
 
     const user = useSelector(state=>state.user.user)
     if(!user.facilities || !user.sensors || !user.alerts){

@@ -2,7 +2,7 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { useEffect,useState } from 'react';
 import { useDispatch,useSelector } from "react-redux";
-import { layoutActions } from "../../../store/layout-slice";
+
 import validator from 'validator'
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -33,9 +33,7 @@ const PasswordChange = ({match,location}) => {
     const [showPassword,setShowPassword] = useState(false);
     const [showConfirmPassword,setShowConfirmPassword] = useState(false);
     const passwordOverwriteOperation = useSelector(state=>state.authorization.operations.passwordOverwrite)
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Change Password'))
-    },[dispatch])
+
     if(!validator.isLength(resetToken,{min:36,max:36})){
         history.push('/auth/passwordRecovery')
     }

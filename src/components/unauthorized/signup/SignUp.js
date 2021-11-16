@@ -1,7 +1,6 @@
 import { Grid,Paper } from '@mui/material';
 import { useEffect,useState } from 'react';
 import { useDispatch,useSelector } from "react-redux";
-import { layoutActions } from "../../../store/layout-slice";
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -35,9 +34,6 @@ const SignUp = (props) => {
     const [showPassword,setShowPassword] = useState(false);
     const [showConfirmPassword,setShowConfirmPassword] = useState(false);
 
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Sign Up'))
-    },[dispatch])
     useEffect(()=>{
         if(signUpOperation.error !== undefined){
             let errorArray = [signUpOperation.error];

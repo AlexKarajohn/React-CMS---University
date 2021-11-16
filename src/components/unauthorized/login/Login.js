@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect ,useState} from 'react';
 import { useDispatch,useSelector } from "react-redux";
-import { layoutActions } from "../../../store/layout-slice";
+
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import validator from 'validator'
@@ -30,9 +30,6 @@ const Login = () => {
     //Ui indicators
     const [showPassword,setShowPassword] = useState(false);
 
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Login'))
-    },[dispatch])
 
     useEffect(()=>{
         if(emailErrorText.trim() || passwordErrorText.trim())

@@ -2,7 +2,6 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { useEffect,useState } from 'react';
 import { useDispatch,useSelector } from "react-redux";
-import { layoutActions  } from "../../../store/layout-slice";
 import { authorizationActions, passwordRecovery } from '../../../store/authorization-slice';
 import validator from 'validator'
 import TextField from '@mui/material/TextField';
@@ -21,9 +20,7 @@ const PasswordRecovery = () =>{
     const [hasError,setHasError] = useState(false);
     const [emailErrorText,setEmailErrorText] = useState(' ');
     const passwordRecoveryOperation = useSelector(state=>state.authorization.operations.passwordRecovery)
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Password Recovery'))
-    },[dispatch])
+
     useEffect(()=>{
         if(emailErrorText.trim())
             setHasError(true);

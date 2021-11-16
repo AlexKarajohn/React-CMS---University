@@ -1,15 +1,9 @@
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { layoutActions } from "../../../store/layout-slice";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import ScreenLockPortraitIcon from '@mui/icons-material/ScreenLockPortrait';
 const Home = () => {
-    const dispatch = useDispatch();
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Home'))
-    },[dispatch])
+
     return (
         <Paper variant='outlined' sx={{ 
             width: [

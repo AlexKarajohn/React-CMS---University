@@ -1,7 +1,7 @@
 import { useDispatch,useSelector } from "react-redux";
 import { useEffect } from 'react';
-import { layoutActions } from "../../../store/layout-slice";
-import { authorizationActions,accountActivation } from "../../../store/authorization-slice";
+
+import { accountActivation } from "../../../store/authorization-slice";
 import validator from "validator";
 import { history } from "../../../App";
 import Paper from "@mui/material/Paper";
@@ -14,16 +14,14 @@ const AccountActivation = ({match,location}) => {
     const dispatch = useDispatch();
     const token = match.params.token;
     const accountActivationOperation = useSelector(state=>state.authorization.operations.accountActivation)
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Email Confirmation'))
-    },[dispatch])
+
     useEffect(()=>{
         if(!validator.isLength(token,{min:24,max:24})){
             history.push('/')
             return;
         }
         dispatch(accountActivation(token));
-    },[token])
+    },[token,dispatch])
     //while loading
     if(accountActivationOperation.status!=='Success' && accountActivationOperation.status!=='Failed')
     return (

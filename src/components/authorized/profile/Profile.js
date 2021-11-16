@@ -1,13 +1,7 @@
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { layoutActions } from "../../../store/layout-slice";
 import Paper from '@mui/material/Paper';
 import Grid from "@mui/material/Grid";
 const Profile = () => {
-    const dispatch = useDispatch();
-    useEffect(()=>{
-        dispatch(layoutActions.setLocation('Profile'))
-    },[dispatch])
+
     return ( 
         <Paper variant='outlined' sx={{ 
             width: [

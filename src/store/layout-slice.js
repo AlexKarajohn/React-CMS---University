@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialLayout = { 
-    location : '404',
     operations:{
 
     }
