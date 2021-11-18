@@ -41,9 +41,9 @@ const Menu = () => {
         if(authStatus){
             localStorage.removeItem('token');
             dispatch(authorizationActions.setAuthorizationStatus(false))
-            history.push('/')
+            history.push(routes.home.path)
         }else{
-            history.push('/auth/login');
+            history.push(routes.login.path);
         }
     }
 

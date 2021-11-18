@@ -10,6 +10,7 @@ import Typography from "@mui/material/Grid";
 import LinearProgress from '@mui/material/LinearProgress';
 import InfoIcon from '@mui/icons-material/Info';
 import SuccessForm from "../layout/successForm/SuccessForm";
+import routes from "../../../assets/routes/routes";
 const AccountActivation = ({match,location}) => {
     const dispatch = useDispatch();
     const token = match.params.token;
@@ -17,7 +18,7 @@ const AccountActivation = ({match,location}) => {
 
     useEffect(()=>{
         if(!validator.isLength(token,{min:24,max:24})){
-            history.push('/')
+            history.push(routes.home.path)
             return;
         }
         dispatch(accountActivation(token));

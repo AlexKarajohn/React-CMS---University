@@ -21,13 +21,13 @@ const Dashboard = () => {
         return <div>something went wrong!</div>
     }
     const facilitiesClickHandler = () => {
-        history.push(routes.find(route=>route.title==='Facilities').path)
+        history.push(routes.facilities.path)
     }
     const sensorsClickHandler = () => {
-        history.push(routes.find(route=>route.title==='Facilities').path)
+        history.push(routes.facilities.path)
     }
     const alertsClickHandler = () => {
-        history.push(routes.find(route=>route.title==='Alerts').path)
+        history.push(routes.alerts.path)
     }
 
     return ( 

@@ -17,6 +17,7 @@ import PasswordIcon from '@mui/icons-material/Password';
 import { history } from '../../../store/store';
 import SuccessForm from '../layout/successForm/SuccessForm'
 import { authorizationActions, login } from '../../../store/authorization-slice';
+import routes from '../../../assets/routes/routes';
 const Login = () => {
     const dispatch = useDispatch();
     //Input Data
@@ -96,7 +97,7 @@ const Login = () => {
         setTimeout(()=>{
             dispatch(authorizationActions.setAuthorizationStatus(true))
             dispatch(authorizationActions.setOperations({function:'login',status:''}))
-            history.push('/auth/dashboard')
+            history.push(routes.dashboard.path)
         },2000)
         return <Paper variant='outlined' sx={{ 
             width: [
@@ -208,7 +209,7 @@ const Login = () => {
                         <Typography variant="subtitle2" sx={{marginTop:'5px'}}>
                             <a href="/auth/passwordRecovery" onClick={(e)=>{
                                 e.preventDefault();
-                                history.push('/auth/passwordRecovery')
+                                history.push(routes.passwordRecovery.path)
                             }}> 
                                 Forgot Password?
                             </a>

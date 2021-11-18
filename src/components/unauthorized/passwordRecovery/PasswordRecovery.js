@@ -12,6 +12,7 @@ import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Button from '@mui/material/Button';
 import { history } from '../../../store/store';
 import SuccessForm from '../layout/successForm/SuccessForm';
+import routes from '../../../assets/routes/routes';
 const PasswordRecovery = () =>{
     const dispatch = useDispatch();
     //Input Data
@@ -57,7 +58,7 @@ const PasswordRecovery = () =>{
     if(passwordRecoveryOperation.status === 'Success'){
         setTimeout(()=>{
             dispatch(authorizationActions.setOperations({function:'passwordRecovery',status:''}))
-            history.push('/')
+            history.push(routes.home.path)
         },4000)
         return <Paper variant='outlined' sx={{ 
             width: [

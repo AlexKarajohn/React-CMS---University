@@ -15,6 +15,7 @@ import validator from 'validator'
 import { history } from '../../../store/store';
 import SuccessForm from '../layout/successForm/SuccessForm';
 import { authorizationActions,signUp } from '../../../store/authorization-slice';
+import routes from '../../../assets/routes/routes';
 
 const SignUp = (props) => {
 	const dispatch = useDispatch();
@@ -151,7 +152,7 @@ const SignUp = (props) => {
     if(signUpOperation.status === 'Success'){
         setTimeout(()=>{
             dispatch(authorizationActions.setOperations({function:'signUp',status:''}))
-            history.push('/auth/login')
+            history.push(routes.signup.path)
         },2000)
         return <Paper variant='outlined' sx={{ 
             width: [

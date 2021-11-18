@@ -16,6 +16,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PasswordIcon from '@mui/icons-material/Password';
 import { authorizationActions, passwordOverwrite } from '../../../store/authorization-slice';
 import SuccessForm from '../layout/successForm/SuccessForm';
+import routes from '../../../assets/routes/routes';
 const PasswordChange = ({match,location}) => {
     const dispatch = useDispatch();
     const resetToken = match.params.resetToken;
@@ -35,7 +36,7 @@ const PasswordChange = ({match,location}) => {
     const passwordOverwriteOperation = useSelector(state=>state.authorization.operations.passwordOverwrite)
 
     if(!validator.isLength(resetToken,{min:36,max:36})){
-        history.push('/auth/passwordRecovery')
+        history.push(routes.passwordRecovery.path)
     }
     useEffect(()=>{
         if(emailErrorText.trim() || passwordErrorText.trim() || confirmPasswordErrorText.trim() )
@@ -141,7 +142,7 @@ const PasswordChange = ({match,location}) => {
     if(invalidToken){
         setTimeout(()=>{
             dispatch(authorizationActions.setOperations({function:'passwordOverwrite',status:''}))
-            history.push('/auth/login')
+            history.push(routes.login.path)
         },4000)
         return <Paper variant='outlined' sx={{ 
             width: [
@@ -156,7 +157,7 @@ const PasswordChange = ({match,location}) => {
     if(passwordOverwriteOperation.status === 'Success'){
         setTimeout(()=>{
             dispatch(authorizationActions.setOperations({function:'passwordOverwrite',status:''}))
-            history.push('/auth/login')
+            history.push(routes.login.path)
         },4000)
         return <Paper variant='outlined' sx={{ 
             width: [

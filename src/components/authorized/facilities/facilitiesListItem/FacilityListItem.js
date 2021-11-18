@@ -25,8 +25,8 @@ const FacilityListItem = (props) =>{
         </div>
 
     const historyPushHandler = () => {
-        const routesCopy = [...routes];
-        history.push(`${routesCopy.find(route=>route.title==='Facility').path.replace(':facilityId',props.facility.id)}`)
+
+        history.push(routes.facility.path.replace(':facilityId',props.facility.id))
     }
     return (
         <Badge badgeContent={badgeContent} sx={{width:'100%'}} anchorOrigin={{
