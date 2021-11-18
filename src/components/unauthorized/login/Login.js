@@ -93,12 +93,6 @@ const Login = () => {
     }
 
     if(loginOperation.status === 'Success'){
-        console.log(loginOperation)
-        setTimeout(()=>{
-            dispatch(authorizationActions.setAuthorizationStatus(true))
-            dispatch(authorizationActions.setOperations({function:'login',status:''}))
-            history.push(routes.dashboard.path)
-        },2000)
         return <Paper variant='outlined' sx={{ 
             width: [
                 '100%',
@@ -106,7 +100,13 @@ const Login = () => {
                 '50%',
             ]
         }}>
-            <SuccessForm text="LogIn in was successful!"/>
+            <SuccessForm text="LogIn in was successful!"
+                toBeDispatched={[
+                    authorizationActions.setAuthorizationStatus(true),
+                    authorizationActions.setOperations({function:'login',status:''})
+                ]}
+                pushTo={routes.dashboard.path}
+            />
         </Paper>
         
     }

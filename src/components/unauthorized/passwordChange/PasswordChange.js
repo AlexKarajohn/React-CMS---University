@@ -140,10 +140,6 @@ const PasswordChange = ({match,location}) => {
         dispatch(passwordOverwrite(email,password,confirmPassword,resetToken))
     }
     if(invalidToken){
-        setTimeout(()=>{
-            dispatch(authorizationActions.setOperations({function:'passwordOverwrite',status:''}))
-            history.push(routes.login.path)
-        },4000)
         return <Paper variant='outlined' sx={{ 
             width: [
                 '100%',
@@ -151,14 +147,15 @@ const PasswordChange = ({match,location}) => {
                 '50%',
             ]
         }}>
-            <SuccessForm text="Invalid password change attempt, the password recovery link is valid for 15 minutes!" style={{color:'red'}}/>
+            <SuccessForm text="Invalid password change attempt, the password recovery link is valid for 15 minutes!" style={{color:'red'}}
+                toBeDispatched={[
+                    authorizationActions.setOperations({function:'passwordOverwrite',status:''})
+                ]}
+                pushTo={routes.login.path}
+            />
         </Paper>
     }
     if(passwordOverwriteOperation.status === 'Success'){
-        setTimeout(()=>{
-            dispatch(authorizationActions.setOperations({function:'passwordOverwrite',status:''}))
-            history.push(routes.login.path)
-        },4000)
         return <Paper variant='outlined' sx={{ 
             width: [
                 '100%',
@@ -166,7 +163,12 @@ const PasswordChange = ({match,location}) => {
                 '50%',
             ]
         }}>
-            <SuccessForm text="Password was successfully changed!"/>
+            <SuccessForm text="Password was successfully changed!"
+                toBeDispatched={[
+                    authorizationActions.setOperations({function:'passwordOverwrite',status:''})
+                ]}
+                pushTo={routes.login.path}
+            />
         </Paper>
     }
     return (

@@ -10,7 +10,6 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Button from '@mui/material/Button';
-import { history } from '../../../store/store';
 import SuccessForm from '../layout/successForm/SuccessForm';
 import routes from '../../../assets/routes/routes';
 const PasswordRecovery = () =>{
@@ -28,6 +27,24 @@ const PasswordRecovery = () =>{
         else
             setHasError(false);
     },[emailErrorText])
+    useEffect(()=>{
+        if(passwordRecoveryOperation.error !== undefined){
+            let errorArray = [passwordRecoveryOperation.error];
+            if(passwordRecoveryOperation.error.includes(',')){
+                errorArray = passwordRecoveryOperation.error.split(',')
+            }
+            errorArray.forEach(error=>{
+                switch(error){
+                    case 'INVALID_USER' : {
+                        setEmailErrorText(`Email doesn't match an account.`)
+                        break;
+                    } 
+                    default: 
+                        setHasError(true);
+                }
+            })
+        }
+    },[passwordRecoveryOperation])
     //validation functions 
     const emailValidation = (e) =>{
         if(!e){
@@ -56,10 +73,6 @@ const PasswordRecovery = () =>{
     }
 
     if(passwordRecoveryOperation.status === 'Success'){
-        setTimeout(()=>{
-            dispatch(authorizationActions.setOperations({function:'passwordRecovery',status:''}))
-            history.push(routes.home.path)
-        },4000)
         return <Paper variant='outlined' sx={{ 
             width: [
                 '100%',
@@ -67,7 +80,12 @@ const PasswordRecovery = () =>{
                 '50%',
             ]
         }}>
-            <SuccessForm text="An email has been sent with further instructions!"/>
+            <SuccessForm text="An email has been sent with further instructions!"
+                toBeDispatched={[
+                    authorizationActions.setOperations({function:'passwordRecovery',status:''})
+                ]}
+                pushTo={routes.home.path}
+            />
         </Paper>
     }
     return (

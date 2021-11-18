@@ -1,7 +1,7 @@
 import { useDispatch,useSelector } from "react-redux";
 import { useEffect } from 'react';
 
-import { accountActivation } from "../../../store/authorization-slice";
+import { accountActivation, authorizationActions } from "../../../store/authorization-slice";
 import validator from "validator";
 import { history } from "../../../store/store";
 import Paper from "@mui/material/Paper";
@@ -61,7 +61,10 @@ const AccountActivation = ({match,location}) => {
                 '100%',
                 '50%',
             ]}}>
-                <SuccessForm text="Account was activated successfully"/>
+                <SuccessForm text="Account was activated successfully"
+                    toBeDispatched={authorizationActions.setOperations({function:'accountActivation',status:''})}
+                    pushTo={routes.login.path}
+                />
         </Paper>
     )
     if(accountActivationOperation.status==='Failed')
@@ -72,7 +75,12 @@ const AccountActivation = ({match,location}) => {
                 '100%',
                 '50%',
             ]}}>
-                <SuccessForm text="Something went wrong, either no user was found or your serial key has already been activated." style={{color:'red'}}/>
+                <SuccessForm text="Something went wrong, either no user was found or your serial key has already been activated." 
+                    toBeDispatched={authorizationActions.setOperations({function:'accountActivation',status:''})}
+                    pushTo={routes.home.path}
+                    sx={{color:'green'}}
+                    timeout={10}
+                />
         </Paper>
     )
 }

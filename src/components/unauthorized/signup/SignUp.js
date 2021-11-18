@@ -12,7 +12,6 @@ import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import PasswordIcon from '@mui/icons-material/Password';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import validator from 'validator'
-import { history } from '../../../store/store';
 import SuccessForm from '../layout/successForm/SuccessForm';
 import { authorizationActions,signUp } from '../../../store/authorization-slice';
 import routes from '../../../assets/routes/routes';
@@ -150,10 +149,6 @@ const SignUp = (props) => {
     }
 
     if(signUpOperation.status === 'Success'){
-        setTimeout(()=>{
-            dispatch(authorizationActions.setOperations({function:'signUp',status:''}))
-            history.push(routes.signup.path)
-        },2000)
         return <Paper variant='outlined' sx={{ 
             width: [
                 '100%',
@@ -161,7 +156,10 @@ const SignUp = (props) => {
                 '50%',
             ]
         }}>
-            <SuccessForm text="SignUp was successful!"/>
+            <SuccessForm text="Sign Up was successful!" 
+                toBeDispatched={[authorizationActions.setOperations({function:'signUp',status:''})]} 
+                pushTo={routes.login.path}
+            />
         </Paper>
     }
 	return (
