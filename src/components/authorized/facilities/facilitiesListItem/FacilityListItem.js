@@ -26,7 +26,7 @@ const FacilityListItem = (props) =>{
 
     const historyPushHandler = () => {
 
-        history.push(routes.facility.path.replace(':facilityId',props.facility.id))
+        history.push(routes.facility.path.replace(':facilityId',props.facility._id))
     }
     return (
         <Badge badgeContent={badgeContent} sx={{width:'100%'}} anchorOrigin={{
@@ -82,7 +82,7 @@ const FacilityListItem = (props) =>{
                     xs={4}
                     >   
                         <Grid item>
-                            Status : 
+                            Triggered : 
                         </Grid>    
                         <Grid item>
                            {props.facility.triggered ? <ReportIcon/> : <CheckCircleIcon/>}

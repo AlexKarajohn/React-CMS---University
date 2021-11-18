@@ -18,14 +18,6 @@ const Facilities = () => {
     if(!facilities.detailed){
         return <div>Loading</div>
     }
-    const fakeFacilities = {
-        items : [
-            {id:'1',name:'facility 1',triggered:false,status:true,alerts:['1']},
-            {id:'2',name:'facility 2',triggered:true,status:true,alerts:[]},
-            {id:'3',name:'facility 3',triggered:true,status:false,alerts:['1','2']},
-        ],
-        detailed : true
-    }
 
     return ( 
         <Paper variant='outlined' sx={{ 
@@ -43,7 +35,7 @@ const Facilities = () => {
                 sx={{height:'100%'}}
                 rowSpacing={4}
             >   
-                {fakeFacilities.items.map(facility=>{
+                {facilities.items.map(facility=>{
                     return (
                         <Grid item sx={{width:'100%'}} key={uuid()}>
                             <FacilityListItem facility={facility}/>

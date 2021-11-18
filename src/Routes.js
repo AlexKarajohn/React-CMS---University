@@ -12,7 +12,7 @@ const Routes = () => {
     useEffect(()=>{
         const list = []
         Object.entries(routes).forEach(route=>{
-            if(route[1].authorization === authorizationStatus)
+            if(route[1].authorization === authorizationStatus || route[1].universal === true )
             list.push(<Route exact={route[1].exact} key={uuid()} path={route[1].path} component={route[1].component} />)
         })
         setRoutesList(list);

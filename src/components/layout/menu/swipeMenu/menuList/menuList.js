@@ -10,8 +10,6 @@ const MenuList = ( props) => {
     const authStatus = useSelector(state=>state.authorization.authorizationStatus)
     const [menuListItems,setMenuListItems] = useState([])
     useEffect(()=>{
-
-
       setMenuListItems(
         Object.entries(routes)
           .filter(route => ((route[1].authorization === authStatus || route[1].universal === true )&& route[1].menu && route[1].hasOwnProperty('icon')))
