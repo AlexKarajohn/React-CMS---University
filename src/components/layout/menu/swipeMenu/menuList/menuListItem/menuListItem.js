@@ -2,7 +2,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
-import { history } from '../../../../../../App';
+import { history } from '../../../../../../store/store';
 import React from 'react'
 const MenuListItem = (props) => {
   const navigateToHandler = () => {

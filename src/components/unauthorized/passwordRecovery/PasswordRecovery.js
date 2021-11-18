@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Button from '@mui/material/Button';
-import { history } from '../../../App';
+import { history } from '../../../store/store';
 import SuccessForm from '../layout/successForm/SuccessForm';
 const PasswordRecovery = () =>{
     const dispatch = useDispatch();

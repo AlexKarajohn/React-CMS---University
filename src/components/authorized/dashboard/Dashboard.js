@@ -10,6 +10,9 @@ import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 import Badge from '@mui/material/Badge';
 import SecurityIcon from '@mui/icons-material/Security';
+import routes from "../../../assets/routes/routes";
+import { history } from "../../../store/store";
+
 const Dashboard = () => {
 
 
@@ -18,13 +21,13 @@ const Dashboard = () => {
         return <div>something went wrong!</div>
     }
     const facilitiesClickHandler = () => {
-        console.log('link to facilities')
+        history.push(routes.find(route=>route.title==='Facilities').path)
     }
     const sensorsClickHandler = () => {
-        console.log('link to sensors')
+        history.push(routes.find(route=>route.title==='Facilities').path)
     }
     const alertsClickHandler = () => {
-        console.log('link to alerts')
+        history.push(routes.find(route=>route.title==='Alerts').path)
     }
 
     return ( 
@@ -86,7 +89,7 @@ const Dashboard = () => {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Badge color="secondary" badgeContent={user.facilities.length.toString()} max={9}>
+                            <Badge color="secondary" badgeContent={user.facilities.items.length.toString()} max={9}>
                                 <HomeWorkIcon />
                             </Badge>
                         </Grid>

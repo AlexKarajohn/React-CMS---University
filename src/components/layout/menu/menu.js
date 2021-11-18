@@ -9,21 +9,36 @@ import { useSelector,useDispatch } from 'react-redux';
 
 import { authorizationActions } from '../../../store/authorization-slice';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import routes from '../../../assets/routes'
-import { useState} from 'react';
+import routes from '../../../assets/routes/routes';
+import { useState,useEffect} from 'react';
 import { withRouter } from 'react-router-dom';
-const Menu = ({ history }) => {
-    const [title,setTitle] = useState(routes.find(route=>route.path === window.location.pathname).title || '404')
-    history.listen((location, action) => {
-        setTitle(routes.find(route=>route.path === location.pathname).title || '404')
-    });
+import { history } from '../../../store/store';
+import {matchPath} from 'react-router-dom'
+
+const Menu = () => {
+    const [title,setTitle] = useState()
+    const currentPath = useSelector(state=>state.router.location.pathname)
+    useEffect(()=>{
+        setTitle(()=>{
+            let matchedTitle = 404;
+            Object.entries(routes).forEach((route,index)=>{
+                let match = matchPath(window.location.pathname, {
+                    ...route[1],
+                    });
+                if(match){
+                    matchedTitle = route[1].title
+                }
+            })
+            return matchedTitle;
+        })
+    },[currentPath])
     
     const dispatch = useDispatch();
-    const loginStatus = useSelector(state=> state.authorization.authorizationStatus)
+    const authStatus = useSelector(state=> state.authorization.authorizationStatus)
     const loggedInEmail = useSelector(state=> state.user.user.email)
 
-    const hangeLoginStatusHandler = () => {
-        if(loginStatus){
+    const authStatusHandler = () => {
+        if(authStatus){
             localStorage.removeItem('token');
             dispatch(authorizationActions.setAuthorizationStatus(false))
             history.push('/')
@@ -38,8 +53,8 @@ const Menu = ({ history }) => {
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="static" color="primary">
                     <Toolbar>
-                        <Button color="inherit" style={{width: 120,height:60}} onClick={hangeLoginStatusHandler} variant='outlined'>
-                            {loginStatus ? 'Log Out' : 'Log In'} 
+                        <Button color="inherit" style={{width: 120,height:60}} onClick={authStatusHandler} variant='outlined'>
+                            {authStatus ? 'Log Out' : 'Log In'} 
                         </Button>
                         <Grid container
                             direction="row"
@@ -55,7 +70,7 @@ const Menu = ({ history }) => {
                         </Grid>
                         <SwipeMenu/>
                     </Toolbar>
-                    { loginStatus && <>
+                    { authStatus && <>
                      
                         <Grid container
                             direction="row"

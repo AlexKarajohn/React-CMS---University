@@ -2,15 +2,29 @@ import authorizationReducer from './authorization-slice';
 import userReducer from './user-slice';
 import layoutReducer from './layout-slice';
 
-import { configureStore } from '@reduxjs/toolkit'
+import { combineReducers } from '@reduxjs/toolkit';
+//import { configureStore } from '@reduxjs/toolkit'
+import { applyMiddleware, createStore,compose } from 'redux'
+//redux history 
+import { createBrowserHistory } from 'history'
+import { connectRouter ,routerMiddleware} from 'connected-react-router'
+import thunk from "redux-thunk"
 
-const store = configureStore({
-    reducer: { 
-        authorization: authorizationReducer ,
-        user: userReducer, 
-        layout: layoutReducer
-    }
-});
+export const history = createBrowserHistory()
 
+const createRootReducer = (history) => combineReducers({
+    router: connectRouter(history),
+    authorization: authorizationReducer ,
+    user: userReducer, 
+    layout: layoutReducer
+  })
 
-export default store;
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+export const store = function configureStore(preloadedState) {
+    const store = createStore(
+      createRootReducer(history),
+      preloadedState, composeEnhancers(applyMiddleware(routerMiddleware(history), thunk)),
+    )
+    return store
+  }

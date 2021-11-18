@@ -3,7 +3,10 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialUserState = {
     user: {
         email : 'placeholder@placeholder.gr',
-        facilities : [],
+        facilities : {
+            items: [],
+            detailed: true
+        },
         alerts: [],
         sensors : []
     },

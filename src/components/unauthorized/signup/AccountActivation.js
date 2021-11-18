@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 import { accountActivation } from "../../../store/authorization-slice";
 import validator from "validator";
-import { history } from "../../../App";
+import { history } from "../../../store/store";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Grid";

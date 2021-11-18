@@ -1,13 +1,15 @@
-import Dashboard from "../components/authorized/dashboard/Dashboard";
-import TermsAndConditions from "../components/unauthorized/termsAndConditions/TermsAndConditions";
-import Profile from "../components/authorized/profile/Profile";
-import Facilities from "../components/authorized/facilities/Facilities";
-import PasswordRecovery from "../components/unauthorized/passwordRecovery/PasswordRecovery";
-import PasswordChange from "../components/unauthorized/passwordChange/PasswordChange";
-import AccountActivation from "../components/unauthorized/signup/AccountActivation";
-import Login from "../components/unauthorized/login/Login";
-import SignUp from "../components/unauthorized/signup/SignUp";
-import Home from "../components/unauthorized/home/Home";
+import Dashboard from "../../components/authorized/dashboard/Dashboard";
+import TermsAndConditions from "../../components/unauthorized/termsAndConditions/TermsAndConditions";
+import Profile from "../../components/authorized/profile/Profile";
+import Facilities from "../../components/authorized/facilities/Facilities";
+import PasswordRecovery from "../../components/unauthorized/passwordRecovery/PasswordRecovery";
+import PasswordChange from "../../components/unauthorized/passwordChange/PasswordChange";
+import AccountActivation from "../../components/unauthorized/signup/AccountActivation";
+import Login from "../../components/unauthorized/login/Login";
+import SignUp from "../../components/unauthorized/signup/SignUp";
+import Home from "../../components/unauthorized/home/Home";
+import Facility from "../../components/authorized/facilities/facility/Facility";
+import Alerts from "../../components/authorized/alerts/Alerts";
 //---------------- ICONS -----------------
 import HomeIcon from '@mui/icons-material/Home';
 import LoginIcon from '@mui/icons-material/Login';
@@ -17,6 +19,9 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import PersonIcon from '@mui/icons-material/Person';
+import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
+
+
 
 const routes = [
     
@@ -82,9 +87,16 @@ const routes = [
         icon: HomeWorkIcon
     },
     {
+        title: 'Alerts',
+        path: '/auth/alerts',
+        component: Alerts,
+        authorization : true,
+        icon: NotificationImportantIcon
+    },
+    {
         title: 'Facility',
         path: '/auth/facilities/:facilityId',
-        component: Facilities,
+        component: Facility,
         authorization : true,
     },
     {

@@ -14,7 +14,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import PasswordIcon from '@mui/icons-material/Password';
-import {history } from '../../../App'
+import { history } from '../../../store/store';
 import SuccessForm from '../layout/successForm/SuccessForm'
 import { authorizationActions, login } from '../../../store/authorization-slice';
 const Login = () => {
