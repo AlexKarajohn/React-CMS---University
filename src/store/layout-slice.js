@@ -1,6 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialLayout = { 
+    modal:{
+        open: false,
+        submit: {},
+        message : '',
+    },
     operations:{
 
     }
@@ -11,8 +16,11 @@ const layoutSlice = createSlice({
     name: 'layout',
     initialState: initialLayout,
     reducers: {
-        setLocation(state,action){
-            state.location = action.payload;
+        setModal(state,action){
+            state.modal.submit = action.payload.submit 
+            state.modal.open = action.payload.open;
+            if(action.payload.hasOwnProperty('message'))
+            state.modal.message = action.payload.message ;
         }
     }
 });

@@ -9,51 +9,139 @@ const initialUserState = {
                     _id: '1',
                     name:'Facility One',
                     description : 'The first one',
+                    enabled : true,
                     triggered: true,
                     status: true,
                     sensors : [
                         {
                             _id: '1',
                             name: 'Sensor One',
+                            pin : 3,
                             description: 'the first one',
-                            status: false,
+                            triggered: false,
                             triggerType: 'NC',
-                            active: false,
+                            enabled: true,
+                            alerts:[
+                                {
+                                    _id:'1',
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    _id:'1',
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    _id:'1',
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    _id:'1',
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: true,
+                                },
+                                {
+                                    _id:'1',
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: true,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                            ]
                         },
                         {
                             _id: '2',
                             name: 'Sensor Two',
+                            pin : 2,
                             description: 'the second one',
-                            status: true,
+                            triggered: true,
                             triggerType: 'NC',
-                            active: false,
+                            enabled: false,
+                            alerts:[
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: true,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: true,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                            ]
                         },
                         {
                             _id: '3',
                             name: 'Sensor Three',
+                            pin : 4,
                             description: 'the third one',
-                            status: true,
+                            triggered: true,
                             triggerType: 'NO',
-                            active: true,
+                            enabled: true,
+                            alerts:[
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: true,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: true,
+                                },
+                                {
+                                    sensor : '1',
+                                    time : Date.now(),
+                                    acknowledged: false,
+                                },
+                            ]
                         },
                     ],
-                    alerts: [
-                        {
-                            sensor : '1',
-                            time : Date.now() - 1000,
-                            acknowledged : false
-                        },
-                        {
-                            sensor : '1',
-                            time : Date.now() - 2000,
-                            acknowledged : false
-                        },
-                        {
-                            sensor : '2',
-                            time : Date.now(),
-                            acknowledged : true
-                        },
-                    ]
                 }
             ],
             detailed: true

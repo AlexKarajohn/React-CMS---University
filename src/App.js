@@ -7,6 +7,7 @@ import Menu from './components/layout/menu/menu';
 import theme from './components/utils/ui/Theme'
 import Grid from '@mui/material/Grid'
 import Routes from "./Routes";
+import ModalRedux from "./components/layout/modal/ModalRedux";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
             <Routes/>
           </Grid>
         </div>
+        <ModalRedux/>
       </ThemeProvider>
     </ConnectedRouter>  
   );
@@ -32,6 +34,3 @@ function App() {
 
 export default App;
 
-
-
-//change the routes to array + menu title 

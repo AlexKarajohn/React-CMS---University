@@ -23,6 +23,16 @@ const FacilityListItem = (props) =>{
             style={{color:props.facility.status ? 'green' : 'red',border:'2px solid black',borderRadius:'8px'}}
             >{props.facility.status ? <PowerIcon/> : <PowerOffIcon/> }
         </div>
+    let nonAcknowledged = 0;
+    props.facility.sensors.forEach(sensor=>{
+        if(sensor.alerts.length > 0) {
+            sensor.alerts.forEach(alert=> {
+                if(!alert.acknowledged){
+                    nonAcknowledged++;
+                }
+            })
+        }
+    })
 
     const historyPushHandler = () => {
 
@@ -67,7 +77,7 @@ const FacilityListItem = (props) =>{
                     xs={4}
                     >   
                         <Grid item>
-                            <Badge color="secondary" badgeContent={props.facility.alerts.length.toString()}>
+                            <Badge color="secondary" badgeContent={nonAcknowledged.toString()}>
                                 <NotificationImportantIcon />
                             </Badge>
                         </Grid>    
