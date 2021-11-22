@@ -1,9 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialLayout = { 
-    modal:{
-        open: false,
-        submit: {},
+    dialog:{
+        onSubmit: undefined,
         message : '',
     },
     operations:{
@@ -16,11 +15,17 @@ const layoutSlice = createSlice({
     name: 'layout',
     initialState: initialLayout,
     reducers: {
-        setModal(state,action){
-            state.modal.submit = action.payload.submit 
-            state.modal.open = action.payload.open;
-            if(action.payload.hasOwnProperty('message'))
-            state.modal.message = action.payload.message ;
+        closeDialog(state,action){
+            state.dialog.onSubmit = undefined;
+        },
+        createDialog(state,action){
+            state.dialog ={ 
+                onSubmit : action.payload.submit,
+                message : action.payload.message
+            }
+        },
+        testingDispatch(state,action){
+            console.log(action.payload);
         }
     }
 });

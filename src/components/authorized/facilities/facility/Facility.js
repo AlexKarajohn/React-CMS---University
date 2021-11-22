@@ -12,6 +12,7 @@ import Stack from '@mui/material/Stack';
 import SensorItem from "../../sensor/SensorItem";
 import Switch from '@mui/material/Switch';
 import {v4 as uuid } from 'uuid'
+import Button from '@mui/material/Button';
 const Facility = ({match,location}) => {
 
     const facility = useSelector(state=>state.user.user.facilities.items.find(facility=> facility._id === match.params.facilityId))
@@ -145,11 +146,14 @@ const Facility = ({match,location}) => {
                                    
                                     variant='h5'
                                 >
-                                    <Stack direction="row"
+                                    <Stack direction="column"
                                         justifyContent='center'
                                         alignItems="center"
                                     >
                                       Sensors
+                                      <Button variant='contained'>
+                                          ADD
+                                      </Button>
                                     </Stack>
                                 </Grid>
                                 {facility.sensors.map(sensor=>{

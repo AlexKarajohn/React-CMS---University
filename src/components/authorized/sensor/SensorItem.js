@@ -14,39 +14,96 @@ import AlertItem from '../alerts/AlertItem';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
+
+import SendIcon from '@mui/icons-material/Send';
+import ClearIcon from '@mui/icons-material/Clear';
+import Badge from '@mui/material/Badge';
+import validator from 'validator';
 import { layoutActions } from '../../../store/layout-slice';
 
+
+
+
 const SensorItem = (props) => {
+    const [name,setName] = useState('');
+    const [description,setDescription] = useState('');
+    const [nameError,setNameError] = useState('');
+    const [descriptionError,setDescriptionError] = useState('');
+    const [sensorType,setSensorType] = useState('');
+    const [gpio,setGpio] = useState('');
+    const [enable,setEnable] = useState('');
     const dispatch = useDispatch()
     const allowedGPIOPins = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
-
+    const [editState,setEditState] = useState(false);
     const deleteSensorOnClickHandler = ( ) =>{
-        console.log(`dispatch delete with id ${props.sensor._id}`)
-        dispatch(layoutActions.setModal({
-            open: true,
-            message: `Are you sure you want to delete sensor : ${props.sensor.name}?`,
-            submit: layoutActions.setModal({open:false})
+        dispatch(layoutActions.createDialog({
+            submit: layoutActions.testingDispatch('yay'),
+            message: `Are you sure you want to delete ${props.sensor.name}`
         }))
+        console.log(`dispatch delete with id ${props.sensor._id}`)
+    }
+
+    const resetData = () =>{
+        setNameError('')
+        setDescriptionError('')
+        setName(props.sensor.name)
+        setDescription(props.sensor.description)
+        setGpio(props.sensor.pin);
+        setEnable(props.sensor.enabled);
+        setSensorType(props.sensor.triggerType);
+        setEditState(true);
+    }
+    const cancelOnClickHandler = () => {
+        resetData();
+        setEditState(false);
     }
     const sensorTypeOnChangeHandler = (e) => {
-        console.log('Sensor Type Change Handler')
-        //this should eventually call a thunk or socket transfer to change value from the server
-        //setSensorType(e.target.value)
+        setSensorType(e.target.value);
     }
     const enabledOnChangeHandler = (e) => {
-        //this should eventually call a thunk or socket transfer to change value from the server
-        console.log('Enable Change Handler')
+        setEnable(e.target.value);
     }
     const pinOnChangeHandler = (e) => {
-        //this should eventually call a thunk or socket transfer to change value from the server
-        console.log('Enable Change Handler')
+        setGpio(e.target.value);
     }
-    
+    const descriptionOnChangeHandler = (e) => {
+        setDescription(e.target.value);
+    }
+    const nameOnChangeHandler = (e) => {
+       setName(e.target.value);
+    }
+    const editSensorOnClickHandler= () =>{
+        if(!editState){
+            resetData();
+            return;
+        }
+        let errors = false;
+        if(!validator.isLength(name.trim(),{min:1,max:20})){
+            setNameError('Min:1, Max:20')
+            errors = true;
+        }
+        if(!validator.isLength(description.trim(),{min:1,max:20})){
+            setDescriptionError('Min:1, Max:20')
+            errors = true;
+        }
+        if(errors)
+            return;
+        console.log('dispatch update');
+        setEditState(false);
+    }
+
+    const badgeContent =  editState ?
+    <Button onClick={cancelOnClickHandler} aria-label="cancel" variant='contained' size="small" sx={{marginLeft:11,marginTop:5,fontSize:12,height:40}}  color='error'>
+        <ClearIcon fontSize="small" /> CANCEL
+    </Button> : ''
     return(
+        <Badge badgeContent={badgeContent} sx={{width:'100%',}} anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+            
+          }} invisible={!editState}>
         <Card>
             <Grid container
                 direction="row"
@@ -60,44 +117,75 @@ const SensorItem = (props) => {
                     direction="row"
                     justifyContent='center'
                     alignItems="center"
-                   
+                    rowSpacing={2}
                     xs={12}
-                    md={6}
+                    lg={6}
                     
                     
                 >
                    <Grid item 
-                        container 
-                        direction='row' 
-                        justifyContent='flex-start'
+                        sx={{width:'100%'}}
+                        container
+                        direction="column"
+                        justifyContent="center"
                         alignItems="center"
-                        >
-                            <Grid item component={Typography}>
+                        spacing={0}>
+                                <Typography >
+                                Name : 
+                                </Typography>
                                 
-                                    Name : {props.sensor.name} 
-                                    <IconButton aria-label="delete" size="small" color="error" >
-                                        <EditIcon/>
-                                    </IconButton>
-                            </Grid>
+                                {editState ? 
+                                <TextField
+                                    disabled={!editState}
+                                    value={name}
+                                    onChange={nameOnChangeHandler}
+                                    size='small'
+                                    error={nameError.trim().length}
+                                    inputProps={{min: 0, style: { textAlign: 'center' }}}
+                                    helperText={nameError}
+                                    sx={{height:'30px'}}
+                                />
+                                : 
+                                <Typography sx={{height:'30px',width:'100%'}} align='center'>
+                                    {props.sensor.name}
+                                </Typography>
+                            }
+                        
                     </Grid>
                     <Grid item 
-                        container 
-                        direction='row' 
-                        justifyContent='flex-start'
+                        sx={{width:'100%'}}
+                        container
+                        direction="column"
+                        justifyContent="center"
                         alignItems="center"
-              
-                      
+                        spacing={0}
                     >
-                        <Grid item>
-                            <Typography>Location : {props.sensor.description}</Typography>
-                        </Grid>
+                        <Typography >Description : </Typography>
+                        {editState ? 
+                                <TextField
+                                sx={{width:'100%',height:'40px'}} 
+                                disabled={!editState}
+                                value={description}
+                                onChange={descriptionOnChangeHandler}
+                                inputProps={{min: 0, style: { textAlign: 'center' }}}
+                                size='small'
+                                error={descriptionError.trim().length}
+                                helperText={descriptionError}
+                                />
+                                : 
+                                <Typography sx={{height:'40px',width:'100%'}} align='center' >
+                                    {props.sensor.description}
+                                </Typography>
+                            }
+                       
+                       
                     </Grid>
                     <Grid item 
                         container 
                         direction='row' 
                         justifyContent='flex-start'
                         alignItems="center"
-                      
+                        columnSpacing={1}
                    
                         >
                             <Grid item>
@@ -113,7 +201,7 @@ const SensorItem = (props) => {
                         direction='row' 
                         justifyContent='flex-start'
                         alignItems="center"
-                
+                        columnSpacing={1}
                     >
                         <Grid item>
                             <Typography>
@@ -121,10 +209,11 @@ const SensorItem = (props) => {
                             </Typography> 
                         </Grid>
                         <Grid item>
+                            {editState ? 
                             <TextField
                             select
- 
-                            value={props.sensor.triggerType}
+                            disabled={!editState}
+                            value={sensorType}
                             onChange={sensorTypeOnChangeHandler}
                             size='small'
                             >
@@ -135,10 +224,15 @@ const SensorItem = (props) => {
                                     NO
                                 </MenuItem>
                             </TextField>
+                            :
+                                <Typography sx={{height:'40px',width:'100%'}} align='left' >
+                                    {props.sensor.triggerType}
+                                </Typography>
+                            }
                         </Grid>
                     </Grid>
                     <Grid item 
-                   
+                        columnSpacing={1}
                         container 
                         direction='row' 
                         justifyContent='flex-start'
@@ -151,10 +245,12 @@ const SensorItem = (props) => {
                             </Typography> 
                         </Grid>
                         <Grid item>
+                            {editState ? 
                             <TextField
                                 select
-                                value={props.sensor.pin}
+                                value={gpio}
                                 onChange={pinOnChangeHandler}
+                                disabled={!editState}
                                 size='small'
                                 SelectProps={{
                                     MenuProps:{
@@ -170,6 +266,11 @@ const SensorItem = (props) => {
                                     })
                                 }
                             </TextField>
+                            :
+                            <Typography sx={{height:'40px',width:'100%'}} align='left' >
+                                {props.sensor.pin}
+                             </Typography>
+                            }
                         </Grid>
                     </Grid>
                     <Grid item 
@@ -186,11 +287,20 @@ const SensorItem = (props) => {
                             </Typography> 
                         </Grid>
                         <Grid item>
+                            {!editState ? 
                             <Switch 
                                 checked={props.sensor.enabled}
                                 value={props.sensor.enabled}
-                                onChange={enabledOnChangeHandler}
+                                disabled={!editState}
                             />
+                            :
+                            <Switch 
+                                checked={enable}
+                                value={enable}
+                                onChange={enabledOnChangeHandler}
+                                disabled={!editState}
+                            />
+                            }
                         </Grid>
                     </Grid>
                     <Grid item 
@@ -204,13 +314,18 @@ const SensorItem = (props) => {
                         <Grid item 
                             container 
                             direction='row' 
-                            justifyContent='flex-start'
+                            justifyContent='center'
                             alignItems="center"
-
+                            columnSpacing={2}
                         >
                             <Grid item >
-                                <Button sx={{width:'100%'}} variant='contained' onClick={deleteSensorOnClickHandler}> 
+                                <Button sx={{width:'100%'}} variant='contained' onClick={deleteSensorOnClickHandler} color='error'> 
                                     <DeleteIcon/> DELETE
+                                </Button>
+                            </Grid>
+                            <Grid item >
+                                <Button sx={{width:'100%',minWidth:'120px'}} variant='contained' onClick={editSensorOnClickHandler}>
+                                        {!editState ? <><EditIcon/> EDIT </> : <> <SendIcon/>UPDATE</>}
                                 </Button>
                             </Grid>
                         </Grid>
@@ -219,7 +334,7 @@ const SensorItem = (props) => {
                 <Grid 
                     item
                     xs={12}
-                    md={6}
+                    lg={6}
                   
                     container
                     direction="row"
@@ -241,6 +356,7 @@ const SensorItem = (props) => {
                 </Grid>   
             </Grid>
         </Card>
+        </Badge>
     )
 } 
 

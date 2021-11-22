@@ -37,29 +37,7 @@ body{
         opacity: 0;
     }
 }
-@keyframes bobAnimation{
-    100%{
-        transform: scale(1)
-    }
-    80%{
-        transform: scale(0.8)
-    }
-    60%{
-        transform: scale(1)
-    }
-    40%{
-        transform: scale(1.2)
-    }
-    20%{
-        transform: scale(1)
-    }
-    0%{
-        transform: scale(0.8)
-    }
-}
-.bobEffect{
-    animation : bobAnimation 1s linear 0s 1 forwards 
-}
+
 
 /*
 The animation property is a shorthand property for:
