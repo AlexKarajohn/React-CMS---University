@@ -17,7 +17,11 @@ import ReportIcon from '@mui/icons-material/Report';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { history } from '../../../../store/store';
 import routes from '../../../../assets/routes/routes';
+
+//expandable
+
 const FacilityListItem = (props) =>{
+  
     const badgeContent = 
         <div 
             style={{color:props.facility.status ? 'green' : 'red',border:'2px solid black',borderRadius:'8px'}}
@@ -49,7 +53,7 @@ const FacilityListItem = (props) =>{
                     direction="row"
                     justifyContent="space-between"
                     alignItems="space-between"
-                    sx={{height:'100%'}}
+                    rowSpacing={2}
                 >   
                     <Grid item container
                     direction="row"
@@ -57,8 +61,9 @@ const FacilityListItem = (props) =>{
                     alignItems="center"
                     sx={{height:'100%'}}
                     columnSpacing={2}
+                   
                     md={4}
-                    xs={4}
+                    xs={12}
                     >   
                         <Grid item>
                             <HomeWorkIcon/>
@@ -74,7 +79,7 @@ const FacilityListItem = (props) =>{
                     sx={{height:'100%'}}
                     columnSpacing={2}
                     md={4}
-                    xs={4}
+                    xs={12}
                     >   
                         <Grid item>
                             <Badge color="secondary" badgeContent={nonAcknowledged.toString()}>
@@ -89,7 +94,7 @@ const FacilityListItem = (props) =>{
                     sx={{height:'100%'}}
                     columnSpacing={2}
                     md={4}
-                    xs={4}
+                    xs={12}
                     >   
                         <Grid item>
                             Triggered : 

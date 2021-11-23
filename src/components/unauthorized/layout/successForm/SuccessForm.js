@@ -24,8 +24,9 @@ const SuccessForm = (props) => {
                 }else if(props.hasOwnProperty('toBeDispatched')){
                     dispatch(props.toBeDispatched)
                 }
-                if(props.pushTo)
+                if(props.pushTo){
                     history.push(props.pushTo)
+                }
             },props.timeout * 1000)
         }else{
             if(props.hasOwnProperty('toBeDispatched') && Array.isArray(props.toBeDispatched) && props.toBeDispatched.length > 0){

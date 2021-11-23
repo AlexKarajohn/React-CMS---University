@@ -25,8 +25,12 @@ import { layoutActions } from '../../../store/layout-slice';
 
 
 
+import Collapse from '@mui/material/Collapse';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const SensorItem = (props) => {
+    const [expanded, setExpanded] = useState(false);
+
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
     const [nameError,setNameError] = useState('');
@@ -80,12 +84,12 @@ const SensorItem = (props) => {
             return;
         }
         let errors = false;
-        if(!validator.isLength(name.trim(),{min:1,max:20})){
-            setNameError('Min:1, Max:20')
+        if(!validator.isLength(name.trim(),{min:3,max:20})){
+            setNameError('Min:3, Max:20')
             errors = true;
         }
-        if(!validator.isLength(description.trim(),{min:1,max:20})){
-            setDescriptionError('Min:1, Max:20')
+        if(!validator.isLength(description.trim(),{min:3,max:20})){
+            setDescriptionError('Min:3, Max:20')
             errors = true;
         }
         if(errors)
@@ -93,7 +97,9 @@ const SensorItem = (props) => {
         console.log('dispatch update');
         setEditState(false);
     }
-
+    const handleExpandClick = () =>{
+        setExpanded(prev=>!prev);
+    }
     const badgeContent =  editState ?
     <Button onClick={cancelOnClickHandler} aria-label="cancel" variant='contained' size="small" sx={{marginLeft:11,marginTop:5,fontSize:12,height:40}}  color='error'>
         <ClearIcon fontSize="small" /> CANCEL
@@ -104,13 +110,32 @@ const SensorItem = (props) => {
             horizontal: 'left',
             
           }} invisible={!editState}>
-        <Card>
+        <Card sx={{width:'100%'}}>
+             <Grid container
+                direction="column"
+                justifyContent='center'
+                alignItems="center"
+                rowSpacing={2}
+            >   
+                    <Button
+                        onClick={handleExpandClick}
+                        aria-expanded={expanded}
+                        aria-label="show more"
+                        >
+                        <ExpandMoreIcon />
+                    </Button>
+                    <Typography>
+                    {expanded ? '' : props.sensor.name}
+                    </Typography>
+
+            </Grid>
+            <Collapse in={expanded} timeout="auto" unmountOnExit sx={{width:'100%'}}>
             <Grid container
                 direction="row"
                 justifyContent='center'
                 alignItems="stretch"
                 rowSpacing={2}
-            >
+            >                
                 <Grid 
                     item
                     container
@@ -140,7 +165,7 @@ const SensorItem = (props) => {
                                     value={name}
                                     onChange={nameOnChangeHandler}
                                     size='small'
-                                    error={nameError.trim().length}
+                                    error={nameError.trim().length >0}
                                     inputProps={{min: 0, style: { textAlign: 'center' }}}
                                     helperText={nameError}
                                     sx={{height:'30px'}}
@@ -169,7 +194,7 @@ const SensorItem = (props) => {
                                 onChange={descriptionOnChangeHandler}
                                 inputProps={{min: 0, style: { textAlign: 'center' }}}
                                 size='small'
-                                error={descriptionError.trim().length}
+                                error={descriptionError.trim().length >0}
                                 helperText={descriptionError}
                                 />
                                 : 
@@ -354,7 +379,9 @@ const SensorItem = (props) => {
                         </List>
                     </Grid>
                 </Grid>   
+              
             </Grid>
+            </Collapse>
         </Card>
         </Badge>
     )
