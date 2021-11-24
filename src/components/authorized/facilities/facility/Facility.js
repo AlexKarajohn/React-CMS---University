@@ -13,7 +13,7 @@ import SensorItem from "../../sensor/SensorItem";
 import Switch from '@mui/material/Switch';
 import {v4 as uuid } from 'uuid'
 import Button from '@mui/material/Button';
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Collapse from '@mui/material/Collapse';
 import validator from 'validator';
 import SensorAdd from "../../sensor/SensorAdd";
@@ -24,11 +24,16 @@ import { layoutActions } from "../../../../store/layout-slice";
 import { useDispatch } from "react-redux";
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
+import { getFacility } from "../../../../store/user-slice";
 const Facility = ({match,location}) => {
     const dispatch = useDispatch()
     const [expanded, setExpanded] = useState(false);
     const facility = useSelector(state=>state.user.user.facilities.items.find(facility=> facility._id === match.params.facilityId))
-    
+    useEffect(()=>{
+        if(facility && !facility.detailed){
+            dispatch(getFacility(match.params.facilityId))
+        }
+    },[facility,dispatch,match.params.facilityId])
     
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
@@ -106,6 +111,9 @@ const Facility = ({match,location}) => {
             message: `Are you sure you want to delete ${facility.name}`
         }))
         console.log(`dispatch delete with id ${facility._id}`)
+    }
+    if(!facility){
+        return <div>Loading</div>
     }
     return (
         <Paper variant='outlined' sx={{ 

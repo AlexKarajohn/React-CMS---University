@@ -17,7 +17,7 @@ const Dashboard = () => {
 
 
     const user = useSelector(state=>state.user.user)
-    if(!user.facilities || !user.sensors || !user.alerts){
+    if(!user){
         return <div>something went wrong!</div>
     }
     const facilitiesClickHandler = () => {
@@ -29,6 +29,7 @@ const Dashboard = () => {
     const alertsClickHandler = () => {
         history.push(routes.alerts.path)
     }
+
 
     return ( 
         <Paper variant='outlined' sx={{ 
@@ -89,7 +90,7 @@ const Dashboard = () => {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Badge color="secondary" badgeContent={user.facilities.items.length.toString()} max={9}>
+                            <Badge color="secondary" badgeContent={user.totalFacilities.toString()} max={9}>
                                 <HomeWorkIcon />
                             </Badge>
                         </Grid>
@@ -112,7 +113,7 @@ const Dashboard = () => {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Badge color="secondary" badgeContent={user.sensors.length.toString()} max={9}>
+                            <Badge color="secondary" badgeContent={user.totalSensors.toString()} max={9}>
                                 <SecurityIcon />
                             </Badge>
                         </Grid>
@@ -135,7 +136,7 @@ const Dashboard = () => {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Badge color="secondary" badgeContent={user.alerts.length.toString()}>
+                            <Badge color="secondary" badgeContent={user.totalAlerts.toString()}>
                                 <NotificationImportantIcon />
                             </Badge>
                         </Grid>

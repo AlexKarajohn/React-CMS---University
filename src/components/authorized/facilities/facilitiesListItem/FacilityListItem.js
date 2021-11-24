@@ -37,7 +37,7 @@ const FacilityListItem = (props) =>{
             })
         }
     })
-
+    
     const historyPushHandler = () => {
 
         history.push(routes.facility.path.replace(':facilityId',props.facility._id))
@@ -100,7 +100,7 @@ const FacilityListItem = (props) =>{
                             Triggered : 
                         </Grid>    
                         <Grid item>
-                           {props.facility.triggered ? <ReportIcon/> : <CheckCircleIcon/>}
+                           {props.facility.triggered ? <CheckCircleIcon/>: <ReportIcon/> }
                         </Grid>    
                     </Grid>
                 </Grid>

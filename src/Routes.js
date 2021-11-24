@@ -1,13 +1,22 @@
 import { Switch, Route } from 'react-router-dom';
 
 import routes from './assets/routes/routes'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import {v4 as uuid} from 'uuid';
 import Home from './components/unauthorized/home/Home';
 import { useEffect , useState} from 'react';
+import { getUser } from './store/user-slice';
 const Routes = () => {
-
+    const dispatch = useDispatch();
     const authorizationStatus = useSelector(state=> state.authorization.authorizationStatus)
+    const isUserDetailed = useSelector(state=>state.user.detailed)
+    useEffect(()=>{
+        if(authorizationStatus && !isUserDetailed)
+        {
+            dispatch(getUser())
+        }
+    },[])
+   
     const [routesList, setRoutesList] = useState([])
     useEffect(()=>{
         const list = []

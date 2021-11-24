@@ -8,10 +8,13 @@ import {v4 as uuid } from 'uuid'
 import Button from '@mui/material/Button';
 import {useState,useEffect} from 'react';
 import validator from 'validator'
-const FacilityAdd = (props) => {
+import { useDispatch,useSelector } from 'react-redux';
+import { addFacility, userActions } from '../../../../store/user-slice';
+const FacilityAdd = ({submitted}) => {
+    const dispatch = useDispatch();
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
-
+    const addFacilityOperation = useSelector(state=>state.user.operations.addFacility)
 
     const [hasErrors,setHasErrors] = useState(false);
     const [nameError,setNameError] = useState(' ');
@@ -23,12 +26,18 @@ const FacilityAdd = (props) => {
         else
             setHasErrors(false);
     },[nameError,descriptionError])
-
+    useEffect(()=>{
+        if(addFacilityOperation.status==='Success')
+        {
+            dispatch(userActions.setOperations({function:'addFacility'}))
+            submitted();
+        }
+    },[addFacilityOperation,dispatch,submitted])
     const nameValidation = (e) =>{
         if(!e){
             e = name
         }
-        if(!validator.isLength(e,{min:3,max:20})){
+        if(!validator.isLength(e.trim(),{min:3,max:20})){
             setNameError('Min:3, Max:20')
             return false
         }
@@ -39,7 +48,7 @@ const FacilityAdd = (props) => {
         if(!e){
             e = description
         }
-        if(!validator.isLength(e,{min:3,max:20})){
+        if(!validator.isLength(e.trim(),{min:3,max:20})){
             setDescriptionError('Min:3, Max:20')
             return false
         }
@@ -49,12 +58,12 @@ const FacilityAdd = (props) => {
    
     //Change Handlers
     const nameChangeHandler = (e) => {
-        setName(e.target.value.trim())
-        nameValidation(e.target.value.trim());
+        setName(e.target.value)
+        nameValidation(e.target.value);
     }
     const descriptionChangeHandler = (e) => {
-        setDescription(e.target.value.trim())
-        descriptionValidation(e.target.value.trim())
+        setDescription(e.target.value)
+        descriptionValidation(e.target.value)
     }
    
     //Submit Handler
@@ -65,9 +74,11 @@ const FacilityAdd = (props) => {
     const submitHandler = () => {
         if(!nameValidation() || !descriptionValidation() )
             return
-        console.log('dispatch')
-        props.submitted();
+        dispatch(addFacility(name.trim(),description.trim()))
     }
+
+  
+
     return (
         <Card>
             <Grid
@@ -99,7 +110,7 @@ const FacilityAdd = (props) => {
                     />
                 </Grid>
                 <Grid item >
-                    <Button variant='contained' onMouseEnter={validateHandler}  onClick={submitHandler} disabled={hasErrors}>
+                    <Button variant='contained' onMouseEnter={validateHandler}  onClick={submitHandler} disabled={hasErrors || addFacilityOperation.status === 'Pending'}>
                         <SendIcon></SendIcon>
                         SUBMIT
                     </Button>

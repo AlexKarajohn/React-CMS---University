@@ -62,12 +62,19 @@ export const login = (email,password) =>{
                         loginUser(userInput: $userInput){
                             token
                             user{
-                                name
                                 email
-                                createdWith
-                                information{
-                                    language
-
+                                facilities{
+                                    items  {
+                                        _id
+                                        name
+                                        sensors{
+                                            _id
+                                            triggered
+                                            alerts{
+                                                _id
+                                            } 
+                                        }
+                                    }
                                 }
                             }
                         }
