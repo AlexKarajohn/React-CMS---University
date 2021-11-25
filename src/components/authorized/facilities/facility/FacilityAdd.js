@@ -10,7 +10,9 @@ import {useState,useEffect} from 'react';
 import validator from 'validator'
 import { useDispatch,useSelector } from 'react-redux';
 import { addFacility, userActions } from '../../../../store/user-slice';
+import { useSnackbar } from 'notistack';
 const FacilityAdd = ({submitted}) => {
+    const { enqueueSnackbar } = useSnackbar();
     const dispatch = useDispatch();
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
@@ -30,9 +32,19 @@ const FacilityAdd = ({submitted}) => {
         if(addFacilityOperation.status==='Success')
         {
             dispatch(userActions.setOperations({function:'addFacility'}))
+            enqueueSnackbar('Facility Was Added!',{
+                variant: 'success',
+            })
             submitted();
         }
-    },[addFacilityOperation,dispatch,submitted])
+        if(addFacilityOperation.status==='Failed')
+        {
+            dispatch(userActions.setOperations({function:'addFacility'}))
+            enqueueSnackbar('Oops! Something went wrong!',{
+                variant: 'error',
+            })
+        }
+    },[addFacilityOperation,dispatch,submitted,enqueueSnackbar])
     const nameValidation = (e) =>{
         if(!e){
             e = name

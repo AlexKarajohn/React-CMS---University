@@ -27,10 +27,10 @@ import { layoutActions } from '../../../store/layout-slice';
 
 import Collapse from '@mui/material/Collapse';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { userActions } from '../../../store/user-slice';
 
-const SensorItem = (props) => {
+const SensorItem = ({sensor,facilityId}) => {
     const [expanded, setExpanded] = useState(false);
-
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
     const [nameError,setNameError] = useState('');
@@ -43,20 +43,25 @@ const SensorItem = (props) => {
     const [editState,setEditState] = useState(false);
     const deleteSensorOnClickHandler = ( ) =>{
         dispatch(layoutActions.createDialog({
-            submit: layoutActions.testingDispatch('yay'),
-            message: `Are you sure you want to delete ${props.sensor.name}`
+            submit: userActions.setSensorOperations({
+                function: 'deleteSensor',
+                status:'confirmed',
+                facilityId,
+                sensorId: sensor._id
+            }),
+            message: `Are you sure you want to delete ${sensor.name}`
         }))
-        console.log(`dispatch delete with id ${props.sensor._id}`)
+        console.log(`dispatch delete with id ${sensor._id}`)
     }
 
     const resetData = () =>{
         setNameError('')
         setDescriptionError('')
-        setName(props.sensor.name)
-        setDescription(props.sensor.description)
-        setGpio(props.sensor.pin);
-        setEnable(props.sensor.enabled);
-        setSensorType(props.sensor.triggerType);
+        setName(sensor.name)
+        setDescription(sensor.description)
+        setGpio(sensor.pin);
+        setEnable(sensor.enabled);
+        setSensorType(sensor.triggerType);
         setEditState(true);
     }
     const cancelOnClickHandler = () => {
@@ -125,7 +130,7 @@ const SensorItem = (props) => {
                         <ExpandMoreIcon />
                     </Button>
                     <Typography>
-                    {expanded ? '' : props.sensor.name}
+                    {expanded ? '' : sensor.name}
                     </Typography>
 
             </Grid>
@@ -172,7 +177,7 @@ const SensorItem = (props) => {
                                 />
                                 : 
                                 <Typography sx={{height:'30px',width:'100%'}} align='center'>
-                                    {props.sensor.name}
+                                    {sensor.name}
                                 </Typography>
                             }
                         
@@ -199,7 +204,7 @@ const SensorItem = (props) => {
                                 />
                                 : 
                                 <Typography sx={{height:'40px',width:'100%'}} align='center' >
-                                    {props.sensor.description}
+                                    {sensor.description}
                                 </Typography>
                             }
                        
@@ -217,7 +222,7 @@ const SensorItem = (props) => {
                                 <Typography>Triggered :</Typography>
                             </Grid>
                             <Grid item>
-                                {props.sensor.triggered ? <CheckCircleIcon/> : <ReportIcon/>}
+                                {sensor.triggered ? <CheckCircleIcon/> : <ReportIcon/>}
                             </Grid>
                     </Grid>
                     <Grid item 
@@ -251,7 +256,7 @@ const SensorItem = (props) => {
                             </TextField>
                             :
                                 <Typography sx={{height:'40px',width:'100%'}} align='left' >
-                                    {props.sensor.triggerType}
+                                    {sensor.triggerType}
                                 </Typography>
                             }
                         </Grid>
@@ -293,7 +298,7 @@ const SensorItem = (props) => {
                             </TextField>
                             :
                             <Typography sx={{height:'40px',width:'100%'}} align='left' >
-                                {props.sensor.pin}
+                                {sensor.pin}
                              </Typography>
                             }
                         </Grid>
@@ -314,8 +319,8 @@ const SensorItem = (props) => {
                         <Grid item>
                             {!editState ? 
                             <Switch 
-                                checked={props.sensor.enabled}
-                                value={props.sensor.enabled}
+                                checked={sensor.enabled}
+                                value={sensor.enabled}
                                 disabled={!editState}
                             />
                             :
@@ -372,7 +377,7 @@ const SensorItem = (props) => {
                     <Grid item sx={{width:'100%'}}  align='center' >
                         <List sx={{overflowX: 'hidden',maxHeight:'450px'}}>
                             {
-                                    props.sensor.alerts.map(alert=>{
+                                    sensor.alerts.map(alert=>{
                                     return <ListItem key={uuid()} xs={{width:'100%'}}><AlertItem alert={alert}/></ListItem>
                                 })
                             }

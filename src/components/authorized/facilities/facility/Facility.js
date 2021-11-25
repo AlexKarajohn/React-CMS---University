@@ -2,10 +2,8 @@ import { useSelector } from "react-redux";
 import Paper from '@mui/material/Paper';
 import Card from '@mui/material/Card';
 import Grid from "@mui/material/Grid";
-import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import PowerIcon from '@mui/icons-material/Power';
 import PowerOffIcon from '@mui/icons-material/PowerOff';
-import DescriptionIcon from '@mui/icons-material/Description';
 import ReportIcon from '@mui/icons-material/Report';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Stack from '@mui/material/Stack';
@@ -24,29 +22,81 @@ import { layoutActions } from "../../../../store/layout-slice";
 import { useDispatch } from "react-redux";
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import { getFacility } from "../../../../store/user-slice";
+import { deleteFacility,getFacility, updateFacility, userActions } from "../../../../store/user-slice";
+import { useSnackbar } from 'notistack';
+import { history } from "../../../../store/store";
+import routes from "../../../../assets/routes/routes";
+import ClearIcon from '@mui/icons-material/Clear';
+import Badge from '@mui/material/Badge';
 const Facility = ({match,location}) => {
+    const { enqueueSnackbar } = useSnackbar();
     const dispatch = useDispatch()
     const [expanded, setExpanded] = useState(false);
+    const deleteFacilityOperation = useSelector(state=>state.user.operations.deleteFacility)
+    const updateFacilityOperation = useSelector(state=>state.user.operations.updateFacility)
     const facility = useSelector(state=>state.user.user.facilities.items.find(facility=> facility._id === match.params.facilityId))
     useEffect(()=>{
         if(facility && !facility.detailed){
             dispatch(getFacility(match.params.facilityId))
         }
+        if(facility && facility.detailed){
+            setName(facility.name)
+            setDescription(facility.description)
+            setEnabled(facility.enabled)
+        }
     },[facility,dispatch,match.params.facilityId])
-    
+
+    useEffect(()=>{
+        if(deleteFacilityOperation.status==='confirmed'){
+            dispatch(deleteFacility(facility._id));
+        }
+        if(deleteFacilityOperation.status==='Success'){
+            dispatch(userActions.setOperations({function:'deleteFacility'}));
+            enqueueSnackbar('Facility Was Removed!',{
+                variant: 'success',
+            })
+            history.push(routes.facilities.path)
+        }
+        if(deleteFacilityOperation.status==='Failed'){
+            dispatch(userActions.setOperations({function:'deleteFacility'}));
+            enqueueSnackbar('Oops! Something went wrong!',{
+                variant: 'error',
+            })
+        }
+        if(updateFacilityOperation.status==='Success'){
+            dispatch(userActions.setOperations({function:'updateFacility'}));
+            setEditState(false);
+        }
+        if(updateFacilityOperation.status==='Failed'){
+            dispatch(userActions.setOperations({function:'updateFacility'}));
+            enqueueSnackbar('Oops! Something went wrong!',{
+                variant: 'error',
+            })
+        }
+    },[updateFacilityOperation,deleteFacilityOperation,dispatch,facility,enqueueSnackbar])
+
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
+    const [enabled,setEnabled] = useState(false);
     const [nameError,setNameError] = useState('');
     const [descriptionError,setDescriptionError] = useState('');
+    const [hasErrors,setHasErrors] = useState(false);
     const [editState,setEditState] = useState(false);
 
+    
     const resetData = () =>{
         setNameError('')
         setDescriptionError('')
         setName(facility.name)
         setDescription(facility.description)
+        setEnabled(facility.enabled)
         setEditState(true);
+        setHasErrors(false);
+    }
+    const cancelOnClickHandler = () =>{
+        setEnabled(facility.enabled)
+        setEditState(false);
+        setHasErrors(false);
     }
     const nameValidation = (e) =>{
         if(!e){
@@ -54,9 +104,11 @@ const Facility = ({match,location}) => {
         }
         if(!validator.isLength(e,{min:3,max:20})){
             setNameError('Min:3, Max:20')
+            setHasErrors(true);
             return false
         }
         setNameError(' ')
+        setHasErrors(false);
         return true
     }
     const descriptionValidation = (e) =>{
@@ -65,9 +117,11 @@ const Facility = ({match,location}) => {
         }
         if(!validator.isLength(e,{min:3,max:20})){
             setDescriptionError('Min:3, Max:20')
+            setHasErrors(true);
             return false
         }
         setDescriptionError(' ')
+        setHasErrors(false);
         return true
     }
     const nameChangeHandler = (e) => {
@@ -79,8 +133,7 @@ const Facility = ({match,location}) => {
         descriptionValidation(e.target.value.trim())
     }
     const enabledOnChangeHandler = (e) => {
-        //this should eventually call a thunk or socket transfer to change value from the server
-        console.log('Enable Change Handler')
+        setEnabled(prev=>!prev)
     }
     const handleExpandClick = () =>{
         setExpanded(prev=>!prev);
@@ -100,21 +153,26 @@ const Facility = ({match,location}) => {
             setDescriptionError('Min:3, Max:20')
             errors = true;
         }
-        if(errors)
+        if(errors){
+            setHasErrors(true);
             return;
-        console.log('dispatch update');
-        setEditState(false);
+        }
+        setHasErrors(false);
+        dispatch(updateFacility(facility._id,name,description,enabled))
     }
     const deleteFacilityOnClickHandler = ( ) =>{
         dispatch(layoutActions.createDialog({
-            submit: layoutActions.testingDispatch('yay'),
+            submit: userActions.setOperations({function:'deleteFacility',status:'confirmed'}),
             message: `Are you sure you want to delete ${facility.name}`
         }))
-        console.log(`dispatch delete with id ${facility._id}`)
     }
     if(!facility){
         return <div>Loading</div>
     }
+    const badgeContent =  editState ?
+    <Button onClick={cancelOnClickHandler} aria-label="cancel" variant='contained' size="small" sx={{marginLeft:11,marginTop:5,fontSize:12,height:40}}  color='error'>
+        <ClearIcon fontSize="small" /> CANCEL
+    </Button> : ''
     return (
         <Paper variant='outlined' sx={{ 
             width: [
@@ -138,6 +196,11 @@ const Facility = ({match,location}) => {
                         justifyContent="center"
                         alignItems="center"
                     >
+                         <Badge badgeContent={badgeContent} sx={{width:'100%',}} anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                            
+                        }} invisible={!editState}>
                         <Card sx={{width:'100%'}}>
                         <Grid item   xs={12} variant='h4'align='center' sx={{height:'80px'}}>
                             <Stack  
@@ -191,30 +254,10 @@ const Facility = ({match,location}) => {
                                 }
                             </Stack> 
                         </Grid>
-                        <Grid item xs={12} align='center' >
-                            <Stack  
-                                direction="row"
-                                justifyContent='center'
-                                alignItems="center"
-                             
-                            >
-                                <Button variant="contained" color='error' sx={{marginRight:2}} onClick={deleteFacilityOnClickHandler}>
-                                    <DeleteIcon/> DELETE
-                                </Button>
-                                <Button variant="contained" sx={{minWidth:'120px'}} onClick={editFacilityOnClickHandler}>
-                                    {!editState ? <><EditIcon/> EDIT </> : <> <SendIcon/>UPDATE</>}
-                                </Button>
-                            </Stack> 
-                        </Grid>
-                        </Card>
-                    </Grid>
-                    <Grid item 
-                        container
-                        direction="row"
-                        justifyContent="center"
-                        alignItems="center"
-                    >
-                        <Card sx={{width:'100%'}}>
+                       
+                        
+                        
+                        
                             <Grid  
                                 container
                                 direction="row"
@@ -232,9 +275,9 @@ const Facility = ({match,location}) => {
                                     >
                                         Enable :                             
                                         <Switch 
-                                            checked={facility.enabled}
-                                            value={facility.enabled}
+                                            checked={enabled}
                                             onChange={enabledOnChangeHandler}
+                                            disabled={!editState}
                                         />
                                     </Stack>
                                 </Grid>
@@ -265,8 +308,36 @@ const Facility = ({match,location}) => {
                                         Status : {facility.status ? <PowerIcon fontSize='large' sx={{color:'green'}}/> : <PowerOffIcon fontSize='large' sx={{color:'red'}}/>}
                                     </Stack>
                                 </Grid>
+                                <Grid item xs={12} align='center' >
+                            <Stack  
+                                direction="row"
+                                justifyContent='center'
+                                alignItems="center"
+                             
+                            >
+                                <Button variant="contained" color='error' sx={{marginRight:2}} onClick={deleteFacilityOnClickHandler}>
+                                    <DeleteIcon/> DELETE
+                                </Button>
+                                <Button 
+                                    variant="contained" 
+                                    sx={{minWidth:'120px'}} 
+                                    onClick={editFacilityOnClickHandler} 
+                                    onMouseEnter={()=>{
+                                        editState && nameValidation();
+                                        editState && descriptionValidation();
+                                    }} 
+                                    disabled={hasErrors}
+                                >
+                                    {!editState ? <><EditIcon/> EDIT </> : <> <SendIcon/>UPDATE</>}
+                                </Button>
+                            </Stack> 
+                            
+                        </Grid>
+                      
                             </Grid>
+                            
                         </Card>
+                        </Badge>
                     </Grid>
                     <Grid item 
                         container
@@ -304,7 +375,9 @@ const Facility = ({match,location}) => {
                                     >
                                
                                     
-                                        <SensorAdd/>
+                                        <SensorAdd facilityId={facility._id} submitted={()=>{
+                                            setExpanded(false)
+                                        }}/>
                                    
                                 
                                 </Grid>
@@ -320,7 +393,7 @@ const Facility = ({match,location}) => {
                                                 justifyContent='center'
                                                 alignItems="center"
                                             >
-                                                <SensorItem sensor={sensor} />
+                                                <SensorItem sensor={sensor} facilityId={facility._id}/>
                                             </Stack>
                                         </Grid>
                                     )

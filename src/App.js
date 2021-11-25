@@ -15,7 +15,7 @@ function App() {
   return (
     <ConnectedRouter history={history}>
       <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={1}>
+        <SnackbarProvider maxSnack={3}>
           <div className="grid">
             <Menu />
             <Grid

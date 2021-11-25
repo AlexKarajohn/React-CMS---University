@@ -2,13 +2,19 @@ import Card from '@mui/material/Card';
 import Grid from "@mui/material/Grid";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-
+import { useDispatch ,useSelector} from 'react-redux';
 import SendIcon from '@mui/icons-material/Send';
 import {v4 as uuid } from 'uuid'
 import Button from '@mui/material/Button';
 import {useState,useEffect} from 'react';
+import { userActions } from '../../../store/user-slice';
 import validator from 'validator'
-const SensorAdd = (props) => {
+import { addSensor } from '../../../store/user-slice';
+import { useSnackbar } from 'notistack';
+const SensorAdd = ({facilityId,submitted}) => {
+    const { enqueueSnackbar } = useSnackbar();
+    const dispatch = useDispatch();
+    const addSensorOperation = useSelector(state=>state.user.operations.addSensor)
     const allowedGPIOPins = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
@@ -26,7 +32,21 @@ const SensorAdd = (props) => {
         else
             setHasErrors(false);
     },[nameError,descriptionError,sensorTypeError,gpioError])
-
+    useEffect(()=>{
+        if(addSensorOperation.status==='Success'){
+            dispatch(userActions.setOperations({function:'addSensor'}));
+            enqueueSnackbar('Sensor Was Added!',{
+                variant: 'success',
+            })
+            submitted();
+        }
+        if(addSensorOperation.status==='Failed'){
+            dispatch(userActions.setOperations({function:'addSensor'}));
+            enqueueSnackbar('Oops! Something went wrong!',{
+                variant: 'error',
+            })
+        }
+    },[addSensorOperation,dispatch,enqueueSnackbar])
     const nameValidation = (e) =>{
         if(!e){
             e = name
@@ -96,7 +116,7 @@ const SensorAdd = (props) => {
     const submitHandler = () => {
         if(!nameValidation() || !descriptionValidation() || !sensorTypeValidation() || !gpioValidation())
             return
-        console.log('dispatch')
+        dispatch(addSensor(facilityId,name,description,sensorType,gpio))
     }
     return (
         <Card>

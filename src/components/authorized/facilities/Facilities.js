@@ -39,7 +39,9 @@ const Facilities = () => {
              <Grid item sx={{width:'100%'}}>
                     <Button variant='contained' onClick={handleExpandClick}>{expanded ? 'HIDE ADD' : 'SHOW ADD'}</Button>
                     <Collapse in={expanded} timeout="auto" unmountOnExit sx={{width:'100%'}}>
-                    <FacilityAdd submitted={()=> setExpanded(prev=>!prev)}/>
+                    <FacilityAdd submitted={()=> {
+                            setExpanded(prev=>!prev)
+                        }}/>
                     </Collapse>
              </Grid>       
                 {facilities.map(facility=>{

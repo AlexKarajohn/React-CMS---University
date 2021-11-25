@@ -1,5 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import graphqlFetch from '../assets/graphql/graphqlFetch';
+
+const sensorOperations = {
+    deleteSensor : {
+        status : undefined,
+        error : undefined,
+    },
+    updateSensor:{
+        status : undefined,
+        error : undefined,
+    }
+}
+
+
 const initialUserState = {
     user: {
         email : 'placeholder@placeholder.gr',
@@ -21,6 +34,18 @@ const initialUserState = {
             error : undefined,
         },
         addFacility:{
+            status : undefined,
+            error : undefined,
+        },
+        deleteFacility:{
+            status : undefined,
+            error : undefined,
+        },
+        updateFacility:{
+            status : undefined,
+            error : undefined,
+        },
+        addSensor:{
             status : undefined,
             error : undefined,
         }
@@ -65,15 +90,52 @@ const userSlice = createSlice({
                 error : action.payload.error || undefined
             };
         },
+        setSensorOperations(state,action){
+            /////error
+            const facilityIndex = state.user.facilities.items.findIndex(item => item._id === action.payload.facilityId);
+            console.log(facilityIndex);
+            
+            const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(item=>item._id === action.payload.sensorId)
+            console.log(state.user.facilities.items[facilityIndex].sensors[sensorIndex]);
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].operations[action.payload.function] = {
+                status : action.payload.status || '',
+                error : action.payload.error || undefined
+            };
+        },
         setFacility(state,action){
             const index = state.user.facilities.items.findIndex(facility=>facility._id === action.payload._id) 
-            console.log(index);
-            state.user.facilities.items[index] = {...action.payload, detailed: true}
+            const sensors = action.payload.sensors.map(item=>{
+                return {
+                    ...item,
+                    operations : sensorOperations
+                }
+            })
+            state.user.facilities.items[index] = {
+                ...action.payload, 
+                sensors,
+                detailed: true
+            }
         },
         addFacility(state,action){
             state.user.facilities.items.push(action.payload)
+        },
+        deleteFacility(state,action){
+            state.user.facilities.items = state.user.facilities.items.filter(item=>item._id !== action.payload)
+        },
+        updateFacility(state,action){
+            const index = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId) 
+            state.user.facilities.items[index].name = action.payload.name
+            state.user.facilities.items[index].description = action.payload.description
+            state.user.facilities.items[index].enabled = action.payload.enabled
+        },
+        addSensor(state,action){
+            const index = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId) 
+            state.user.facilities.items[index].sensors.push({
+                ...action.payload.sensor,
+                operations : sensorOperations
+            })
         }
-    }
+    }   
 });
 export const userActions = userSlice.actions;
 
@@ -145,6 +207,7 @@ export const getFacility = (facilityId) =>{
                         description
                         triggered
                         status
+                        enabled
                         sensors{
                             _id
                             name
@@ -237,6 +300,184 @@ export const addFacility = (name,description) =>{
                 dispatch(userActions.setOperations({
                     status:'Failed',
                     function:'addFacility',
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
+export const deleteFacility = (facilityId) =>{
+    return (dispatch ) => {
+        dispatch(userActions.setOperations({
+            function : 'deleteFacility',
+            status:'Pending',
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation deleteFacility($userInput : ID!){
+                    deleteFacility(userInput : $userInput)
+                }
+            `,
+            variables:{
+                userInput : facilityId
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setOperations({
+                        status:'Failed',
+                        function:'deleteFacility',
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setOperations({
+                    status:'Success',
+                    function:'deleteFacility'
+                }))
+                dispatch(userActions.deleteFacility(facilityId))
+            }).catch(err=>{
+                dispatch(userActions.setOperations({
+                    status:'Failed',
+                    function:'deleteFacility',
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
+export const updateFacility = (facilityId,name,description,enabled) =>{
+    return (dispatch ) => {
+        dispatch(userActions.setOperations({
+            function : 'updateFacility',
+            status:'Pending',
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation updateFacility($userInput : updateFacilityInput!){
+                    updateFacility(userInput : $userInput)
+                }
+            `,
+            variables:{
+                userInput : {facilityId,name,description,enabled}
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setOperations({
+                        status:'Failed',
+                        function:'updateFacility',
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setOperations({
+                    status:'Success',
+                    function:'updateFacility'
+                }))
+                dispatch(userActions.updateFacility({facilityId,name,description,enabled}))
+            }).catch(err=>{
+                dispatch(userActions.setOperations({
+                    status:'Failed',
+                    function:'updateFacility',
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
+export const addSensor = (facilityId,name,description,sensorType,gpio) =>{
+    return (dispatch ) => {
+        dispatch(userActions.setOperations({
+            function : 'addSensor',
+            status:'Pending',
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation addSensor($userInput : addSensorInput!){
+                    addSensor(userInput : $userInput){
+                        _id
+                        name
+                        description
+                        triggerType
+                        pin
+                        alerts{
+                            time
+                            acknowledged
+                        }
+                    }
+                }
+            `,
+            variables:{
+                userInput : {
+                    facilityId,
+                    name,
+                    description,
+                    triggerType : sensorType,
+                    pin : gpio}
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setOperations({
+                        status:'Failed',
+                        function:'addSensor',
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setOperations({
+                    status:'Success',
+                    function:'addSensor'
+                }))
+                dispatch(userActions.addSensor({facilityId,sensor: result.data.addSensor}))
+            }).catch(err=>{
+                dispatch(userActions.setOperations({
+                    status:'Failed',
+                    function:'addSensor',
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
+export const removeSensor = (facilityId,sensorId) =>{
+    return (dispatch ) => {
+        dispatch(userActions.setOperations({
+            function : 'removeSensor',
+            status:'Pending',
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation removeSensor($userInput : removeSensorInput!){
+                    removeSensor(userInput : $userInput)
+                }
+            `,
+            variables:{
+                userInput : {
+                    facilityId,
+                    sensorId
+                }
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setOperations({
+                        status:'Failed',
+                        function:'removeSensor',
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setOperations({
+                    status:'Success',
+                    function:'removeSensor'
+                }))
+                dispatch(userActions.removeSensor({facilityId,sensor: result.data.removeSensor}))
+            }).catch(err=>{
+                dispatch(userActions.setOperations({
+                    status:'Failed',
+                    function:'removeSensor',
                     error:'Something went wrong.'
                 }))
             })
