@@ -36,21 +36,28 @@ const Facility = ({match,location}) => {
     const updateFacilityOperation = useSelector(state=>state.user.operations.updateFacility)
     const facility = useSelector(state=>state.user.user.facilities.items.find(facility=> facility._id === match.params.facilityId))
     useEffect(()=>{
+        
         if(facility && !facility.detailed){
+            
             dispatch(getFacility(match.params.facilityId))
         }
         if(facility && facility.detailed){
+            
             setName(facility.name)
             setDescription(facility.description)
             setEnabled(facility.enabled)
         }
+        
     },[facility,dispatch,match.params.facilityId])
 
     useEffect(()=>{
+        
         if(deleteFacilityOperation.status==='confirmed'){
+            
             dispatch(deleteFacility(facility._id));
         }
         if(deleteFacilityOperation.status==='Success'){
+            
             dispatch(userActions.setOperations({function:'deleteFacility'}));
             enqueueSnackbar('Facility Was Removed!',{
                 variant: 'success',
@@ -58,16 +65,19 @@ const Facility = ({match,location}) => {
             history.push(routes.facilities.path)
         }
         if(deleteFacilityOperation.status==='Failed'){
+            
             dispatch(userActions.setOperations({function:'deleteFacility'}));
             enqueueSnackbar('Oops! Something went wrong!',{
                 variant: 'error',
             })
         }
         if(updateFacilityOperation.status==='Success'){
+            
             dispatch(userActions.setOperations({function:'updateFacility'}));
             setEditState(false);
         }
         if(updateFacilityOperation.status==='Failed'){
+            
             dispatch(userActions.setOperations({function:'updateFacility'}));
             enqueueSnackbar('Oops! Something went wrong!',{
                 variant: 'error',
@@ -125,11 +135,11 @@ const Facility = ({match,location}) => {
         return true
     }
     const nameChangeHandler = (e) => {
-        setName(e.target.value.trim())
+        setName(e.target.value)
         nameValidation(e.target.value.trim());
     }
     const descriptionChangeHandler = (e) => {
-        setDescription(e.target.value.trim())
+        setDescription(e.target.value)
         descriptionValidation(e.target.value.trim())
     }
     const enabledOnChangeHandler = (e) => {
@@ -157,6 +167,10 @@ const Facility = ({match,location}) => {
             setHasErrors(true);
             return;
         }
+        if(name === facility.name && description === facility.description && enabled === facility.enabled){
+            cancelOnClickHandler();
+            return;
+        }
         setHasErrors(false);
         dispatch(updateFacility(facility._id,name,description,enabled))
     }
@@ -173,6 +187,7 @@ const Facility = ({match,location}) => {
     <Button onClick={cancelOnClickHandler} aria-label="cancel" variant='contained' size="small" sx={{marginLeft:11,marginTop:5,fontSize:12,height:40}}  color='error'>
         <ClearIcon fontSize="small" /> CANCEL
     </Button> : ''
+    
     return (
         <Paper variant='outlined' sx={{ 
             width: [
@@ -373,21 +388,16 @@ const Facility = ({match,location}) => {
                                         xs={12}
                                         key={uuid()}    
                                     >
-                               
-                                    
                                         <SensorAdd facilityId={facility._id} submitted={()=>{
                                             setExpanded(false)
                                         }}/>
-                                   
-                                
                                 </Grid>
                                 </Collapse>
                                 {facility.sensors.map(sensor=>{
                                     return (
                                         <Grid item 
                                             xs={12}
-                                            key={uuid()}
-                                            
+                                            key={sensor._id}
                                         >
                                             <Stack direction="row"
                                                 justifyContent='center'

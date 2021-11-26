@@ -12,14 +12,14 @@ import Badge from '@mui/material/Badge';
 import SecurityIcon from '@mui/icons-material/Security';
 import routes from "../../../assets/routes/routes";
 import { history } from "../../../store/store";
-
+import { useEffect,useState } from "react";
 const Dashboard = () => {
 
-
+    
     const user = useSelector(state=>state.user.user)
-    if(!user){
-        return <div>something went wrong!</div>
-    }
+    const [totalFacilities,setTotalFacilities] = useState(0)
+    const [totalAlerts,setTotalAlerts] = useState(0)
+    const [totalSensors,setTotalSensors] = useState(0)
     const facilitiesClickHandler = () => {
         history.push(routes.facilities.path)
     }
@@ -29,8 +29,33 @@ const Dashboard = () => {
     const alertsClickHandler = () => {
         history.push(routes.alerts.path)
     }
-
-
+    useEffect(()=>{
+        console.log('lol')
+        let totalSensorsTemp = 0;
+        let totalAlertsTemp =0;
+        let totalFacilitiesTemp =0;
+        if(user.facilities.items.length>0){
+                user.facilities.items.forEach(facility=>{
+                    totalFacilitiesTemp++;
+                    if(facility.sensors.length > 0){
+                        facility.sensors.forEach(sensor=>{
+                            totalSensorsTemp++;
+                            sensor.alerts.forEach(alert=>{
+                                if(!alert.acknowledged)
+                                totalAlertsTemp++;
+                            })
+                        })
+                    }
+                })
+                console.log(totalAlertsTemp)
+                setTotalFacilities(totalFacilitiesTemp);
+                setTotalSensors(totalSensorsTemp);
+                setTotalAlerts(totalAlertsTemp);
+            }
+    },[user.facilities.items])
+    if(!user){
+        return <div>something went wrong!</div>
+    }
     return ( 
         <Paper variant='outlined' sx={{ 
             width: [
@@ -90,7 +115,7 @@ const Dashboard = () => {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Badge color="secondary" badgeContent={user.totalFacilities.toString()} max={9}>
+                            <Badge color="secondary" badgeContent={totalFacilities.toString()} max={9}>
                                 <HomeWorkIcon />
                             </Badge>
                         </Grid>
@@ -113,7 +138,7 @@ const Dashboard = () => {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Badge color="secondary" badgeContent={user.totalSensors.toString()} max={9}>
+                            <Badge color="secondary" badgeContent={totalSensors.toString()} max={9}>
                                 <SecurityIcon />
                             </Badge>
                         </Grid>
@@ -136,7 +161,7 @@ const Dashboard = () => {
                             </Typography>
                         </Grid>
                         <Grid item>
-                            <Badge color="secondary" badgeContent={user.totalAlerts.toString()}>
+                            <Badge color="secondary" badgeContent={totalAlerts.toString()}>
                                 <NotificationImportantIcon />
                             </Badge>
                         </Grid>

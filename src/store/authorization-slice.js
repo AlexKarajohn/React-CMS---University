@@ -72,6 +72,7 @@ export const login = (email,password) =>{
                                             triggered
                                             alerts{
                                                 _id
+                                                acknowledged
                                             } 
                                         }
                                     }

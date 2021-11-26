@@ -1,10 +1,7 @@
 import Card from '@mui/material/Card';
 import Grid from "@mui/material/Grid";
 import TextField from '@mui/material/TextField';
-
-
 import SendIcon from '@mui/icons-material/Send';
-import {v4 as uuid } from 'uuid'
 import Button from '@mui/material/Button';
 import {useState,useEffect} from 'react';
 import validator from 'validator'

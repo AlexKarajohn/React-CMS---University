@@ -9,13 +9,13 @@ import { getUser } from './store/user-slice';
 const Routes = () => {
     const dispatch = useDispatch();
     const authorizationStatus = useSelector(state=> state.authorization.authorizationStatus)
-    const isUserDetailed = useSelector(state=>state.user.detailed)
+
     useEffect(()=>{
-        if(authorizationStatus && !isUserDetailed)
+        if(authorizationStatus)
         {
             dispatch(getUser())
         }
-    },[])
+    },[authorizationStatus,dispatch])
    
     const [routesList, setRoutesList] = useState([])
     useEffect(()=>{

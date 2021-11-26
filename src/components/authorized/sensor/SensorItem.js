@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import {v4 as uuid } from 'uuid';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import AlertItem from '../alerts/AlertItem';
 import List from '@mui/material/List';
@@ -16,20 +16,20 @@ import ListItem from '@mui/material/ListItem';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
-
 import SendIcon from '@mui/icons-material/Send';
 import ClearIcon from '@mui/icons-material/Clear';
 import Badge from '@mui/material/Badge';
 import validator from 'validator';
 import { layoutActions } from '../../../store/layout-slice';
-
-
-
 import Collapse from '@mui/material/Collapse';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { userActions } from '../../../store/user-slice';
+import { updateSensor, userActions } from '../../../store/user-slice';
+import { deleteSensor } from '../../../store/user-slice';
+import { useSnackbar } from 'notistack';
 
 const SensorItem = ({sensor,facilityId}) => {
+    const { enqueueSnackbar } = useSnackbar();
+    const [alerted,setAlerted] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [name,setName] = useState('');
     const [description,setDescription] = useState('');
@@ -37,7 +37,7 @@ const SensorItem = ({sensor,facilityId}) => {
     const [descriptionError,setDescriptionError] = useState('');
     const [sensorType,setSensorType] = useState('');
     const [gpio,setGpio] = useState('');
-    const [enable,setEnable] = useState('');
+    const [enable,setEnable] = useState(false);
     const dispatch = useDispatch()
     const allowedGPIOPins = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]
     const [editState,setEditState] = useState(false);
@@ -51,9 +51,67 @@ const SensorItem = ({sensor,facilityId}) => {
             }),
             message: `Are you sure you want to delete ${sensor.name}`
         }))
-        console.log(`dispatch delete with id ${sensor._id}`)
     }
+    useEffect(()=>{
+        let nonAcknowlegedAlerts = 0;
+        sensor.alerts.forEach(alert=>{
+            if(!alert.acknowledged){
+                nonAcknowlegedAlerts++
+            }
+        })
+        if(nonAcknowlegedAlerts > 0){
+            setAlerted(true)
+        }else{
+            setAlerted(false);
+        }
+    },[sensor.alerts])
+    useEffect(()=>{
+        if(sensor.hasOwnProperty('operations') && sensor.operations.deleteSensor.status === 'confirmed'){
 
+            dispatch(deleteSensor(
+                facilityId,
+                sensor._id
+            ))
+        }
+        if(sensor.hasOwnProperty('operations') && sensor.operations.deleteSensor.status === 'Success'){
+            enqueueSnackbar('Sensor Was deleted!',{
+                variant: 'success',
+            })
+            dispatch(userActions.deleteSensor(
+                                        {facilityId,
+                                        sensorId: sensor._id}
+                                        ))                       
+            
+        }
+        if(sensor.hasOwnProperty('operations') && sensor.operations.deleteSensor.status === 'Failed'){
+            dispatch(userActions.setSensorOperations({
+                function: 'deleteSensor',
+                facilityId,
+                sensorId: sensor._id
+            }))
+            enqueueSnackbar('Oops! Something went wrong!',{
+                variant: 'error',
+            })
+        }
+        if(sensor.hasOwnProperty('operations') && sensor.operations.updateSensor.status === 'Failed'){
+            dispatch(userActions.setSensorOperations({
+                function: 'updateSensor',
+                facilityId,
+                sensorId: sensor._id
+            }))
+            enqueueSnackbar('Oops! Something went wrong!',{
+                variant: 'error',
+            })
+        }
+        if(sensor.hasOwnProperty('operations') && sensor.operations.updateSensor.status === 'Success'){
+            dispatch(userActions.setSensorOperations({
+                function: 'updateSensor',
+                facilityId,
+                sensorId: sensor._id
+            }))
+            setEditState(false);
+        }
+    },[sensor,dispatch,facilityId,sensor._id,enqueueSnackbar])
     const resetData = () =>{
         setNameError('')
         setDescriptionError('')
@@ -72,7 +130,7 @@ const SensorItem = ({sensor,facilityId}) => {
         setSensorType(e.target.value);
     }
     const enabledOnChangeHandler = (e) => {
-        setEnable(e.target.value);
+        setEnable(prev=>!prev);
     }
     const pinOnChangeHandler = (e) => {
         setGpio(e.target.value);
@@ -99,8 +157,21 @@ const SensorItem = ({sensor,facilityId}) => {
         }
         if(errors)
             return;
-        console.log('dispatch update');
-        setEditState(false);
+        if(name === sensor.name && description === sensor.description && sensorType === sensor.triggerType && gpio === sensor.pin && enable === sensor.enabled){
+            resetData();
+            setEditState(false);
+            return;
+        }
+        dispatch(updateSensor(
+            facilityId,
+            sensor._id,
+            name,
+            description,
+            sensorType,
+            gpio,
+            enable,
+        ))
+
     }
     const handleExpandClick = () =>{
         setExpanded(prev=>!prev);
@@ -109,13 +180,16 @@ const SensorItem = ({sensor,facilityId}) => {
     <Button onClick={cancelOnClickHandler} aria-label="cancel" variant='contained' size="small" sx={{marginLeft:11,marginTop:5,fontSize:12,height:40}}  color='error'>
         <ClearIcon fontSize="small" /> CANCEL
     </Button> : ''
+    if(!sensor){
+        return <div>Loading...</div>
+    }
     return(
         <Badge badgeContent={badgeContent} sx={{width:'100%',}} anchorOrigin={{
             vertical: 'top',
             horizontal: 'left',
             
           }} invisible={!editState}>
-        <Card sx={{width:'100%'}}>
+        <Card sx={{width:'100%',backgroundColor: (alerted ? '#FF8181' : '')}}>
              <Grid container
                 direction="column"
                 justifyContent='center'
@@ -317,20 +391,12 @@ const SensorItem = ({sensor,facilityId}) => {
                             </Typography> 
                         </Grid>
                         <Grid item>
-                            {!editState ? 
                             <Switch 
-                                checked={sensor.enabled}
-                                value={sensor.enabled}
-                                disabled={!editState}
-                            />
-                            :
-                            <Switch 
-                                checked={enable}
-                                value={enable}
+                                checked={editState ? enable : sensor.enabled}
+                                value={editState ? enable : sensor.enabled}
                                 onChange={enabledOnChangeHandler}
                                 disabled={!editState}
                             />
-                            }
                         </Grid>
                     </Grid>
                     <Grid item 
@@ -378,7 +444,7 @@ const SensorItem = ({sensor,facilityId}) => {
                         <List sx={{overflowX: 'hidden',maxHeight:'450px'}}>
                             {
                                     sensor.alerts.map(alert=>{
-                                    return <ListItem key={uuid()} xs={{width:'100%'}}><AlertItem alert={alert}/></ListItem>
+                                    return <ListItem key={uuid()} xs={{width:'100%'}}><AlertItem alert={alert} facilityId={facilityId} sensorId={sensor._id}/></ListItem>
                                 })
                             }
                         </List>

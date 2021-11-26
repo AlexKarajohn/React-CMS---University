@@ -11,6 +11,16 @@ const sensorOperations = {
         error : undefined,
     }
 }
+const alertOperations = {
+    deleteAlert : {
+        status : undefined,
+        error : undefined,
+    },
+    acknowledgeAlert:{
+        status : undefined,
+        error : undefined,
+    }
+}
 
 
 const initialUserState = {
@@ -66,23 +76,7 @@ const userSlice = createSlice({
                 ...action.payload,
                 detailed: true,
             }
-            let totalAlerts = 0;
-            let totalSensors = 0;
-            if(action.payload.facilities.items.length>0){
-                action.payload.facilities.items.forEach(facility=>{
-                    if(facility.sensors.length > 0){
-                        facility.sensors.forEach(sensor=>{
-                            totalSensors++;
-                            sensor.alerts.forEach(alert=>{
-                                totalAlerts++;
-                            })
-                        })
-                    }
-                })
-            }
-            state.user.totalFacilities = action.payload.facilities.items.length;
-            state.user.totalSensors = totalSensors;
-            state.user.totalAlerts = totalAlerts;
+            
         },
         setOperations(state,action){
             state.operations[action.payload.function] = {
@@ -91,13 +85,18 @@ const userSlice = createSlice({
             };
         },
         setSensorOperations(state,action){
-            /////error
             const facilityIndex = state.user.facilities.items.findIndex(item => item._id === action.payload.facilityId);
-            console.log(facilityIndex);
-            
             const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(item=>item._id === action.payload.sensorId)
-            console.log(state.user.facilities.items[facilityIndex].sensors[sensorIndex]);
             state.user.facilities.items[facilityIndex].sensors[sensorIndex].operations[action.payload.function] = {
+                status : action.payload.status || '',
+                error : action.payload.error || undefined
+            };
+        },
+        setAlertOperations(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(item => item._id === action.payload.facilityId);
+            const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(item=>item._id === action.payload.sensorId)
+            const alertIndex = state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.findIndex(item => item._id === action.payload.alertId)
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts[alertIndex].operations[action.payload.function] = {
                 status : action.payload.status || '',
                 error : action.payload.error || undefined
             };
@@ -105,8 +104,15 @@ const userSlice = createSlice({
         setFacility(state,action){
             const index = state.user.facilities.items.findIndex(facility=>facility._id === action.payload._id) 
             const sensors = action.payload.sensors.map(item=>{
+                const alerts = item.alerts.map(alert=>{
+                    return {
+                        ...alert,
+                        operations: alertOperations
+                    }
+                })
                 return {
                     ...item,
+                    alerts,
                     operations : sensorOperations
                 }
             })
@@ -129,11 +135,36 @@ const userSlice = createSlice({
             state.user.facilities.items[index].enabled = action.payload.enabled
         },
         addSensor(state,action){
-            const index = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId) 
-            state.user.facilities.items[index].sensors.push({
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId) 
+            state.user.facilities.items[facilityIndex].sensors.push({
                 ...action.payload.sensor,
                 operations : sensorOperations
             })
+            console.log(action.payload.sensor)
+        },
+        deleteSensor(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            state.user.facilities.items[facilityIndex].sensors = state.user.facilities.items[facilityIndex].sensors.filter(sensor=> sensor._id !== action.payload.sensorId);
+        },
+        updateSensor(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].name = action.payload.name
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].description = action.payload.description
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].triggerType = action.payload.triggerType
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].pin = action.payload.pin
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].enabled = action.payload.enabled
+        },
+        acknowledgeAlert(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
+            const alertIndex = state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.findIndex(alert=>alert._id === action.payload.alertId)
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts[alertIndex].acknowledged = true;
+        },
+        deleteAlert(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts = state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.filter(alert=> alert._id !== action.payload.alertId)
         }
     }   
 });
@@ -159,6 +190,7 @@ export const getUser = () =>{
                                     triggered
                                     alerts{
                                         _id
+                                        acknowledged
                                     } 
                                 }
                             }
@@ -181,7 +213,7 @@ export const getUser = () =>{
                     status:'Success',
                     function:'getUser'
                 }))
-                console.log(result.data.getUser)
+
                 dispatch(userActions.setUser(result.data.getUser))
             }).catch(err=>{
                 dispatch(userActions.setOperations({
@@ -400,6 +432,7 @@ export const addSensor = (facilityId,name,description,sensorType,gpio) =>{
                         description
                         triggerType
                         pin
+                        enabled
                         alerts{
                             time
                             acknowledged
@@ -440,16 +473,18 @@ export const addSensor = (facilityId,name,description,sensorType,gpio) =>{
             })
     }
 }
-export const removeSensor = (facilityId,sensorId) =>{
+export const deleteSensor = (facilityId,sensorId) =>{
     return (dispatch ) => {
-        dispatch(userActions.setOperations({
-            function : 'removeSensor',
+        dispatch(userActions.setSensorOperations({
+            function : 'deleteSensor',
             status:'Pending',
+            facilityId,
+            sensorId,
         }))
         const graphqlQuery = {
             query: ` 
-                mutation removeSensor($userInput : removeSensorInput!){
-                    removeSensor(userInput : $userInput)
+                mutation deleteSensor($userInput : deleteSensorInput!){
+                    deleteSensor(userInput : $userInput)
                 }
             `,
             variables:{
@@ -462,22 +497,208 @@ export const removeSensor = (facilityId,sensorId) =>{
         graphqlFetch(graphqlQuery)
             .then(result=>{
                 if(result?.errors?.length > 0){
-                    dispatch(userActions.setOperations({
+                    dispatch(userActions.setSensorOperations({
                         status:'Failed',
-                        function:'removeSensor',
+                        function:'deleteSensor',
+                        facilityId,
+                        sensorId,
                         error:result.errors[0].message
                     }))
                     return;
                 }
-                dispatch(userActions.setOperations({
+                dispatch(userActions.setSensorOperations({
                     status:'Success',
-                    function:'removeSensor'
+                    function:'deleteSensor',
+                    facilityId,
+                    sensorId,
                 }))
-                dispatch(userActions.removeSensor({facilityId,sensor: result.data.removeSensor}))
             }).catch(err=>{
-                dispatch(userActions.setOperations({
+                dispatch(userActions.setSensorOperations({
                     status:'Failed',
-                    function:'removeSensor',
+                    function:'deleteSensor',
+                    facilityId,
+                    sensorId,
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
+export const updateSensor = (facilityId,sensorId,name,description,triggerType,pin,enabled) =>{
+    return (dispatch ) => {
+        console.log(facilityId)
+        console.log(sensorId)
+        dispatch(userActions.setSensorOperations({
+            function : 'updateSensor',
+            status:'Pending',
+            facilityId,
+            sensorId,
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation updateSensor($userInput : updateSensorInput!){
+                    updateSensor(userInput : $userInput)
+                }
+            `,
+            variables:{
+                userInput : {
+                    facilityId,
+                    sensorId,
+                    name,
+                    description,
+                    triggerType,
+                    pin,
+                    enabled
+                }
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setSensorOperations({
+                        status:'Failed',
+                        function:'updateSensor',
+                        facilityId,
+                        sensorId,
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setSensorOperations({
+                    status:'Success',
+                    function:'updateSensor',
+                    facilityId,
+                    sensorId,
+                }))
+                dispatch(userActions.updateSensor({
+                    name,
+                    description,
+                    facilityId,
+                    sensorId,
+                    pin,
+                    triggerType,
+                    enabled
+                }))
+            }).catch(err=>{
+                dispatch(userActions.setSensorOperations({
+                    status:'Failed',
+                    function:'updateSensor',
+                    facilityId,
+                    sensorId,
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
+export const acknowledgeAlert = (facilityId,sensorId,alertId) =>{
+    return (dispatch ) => {
+        dispatch(userActions.setAlertOperations({
+            function : 'acknowledgeAlert',
+            status:'Pending',
+            facilityId,
+            sensorId,
+            alertId,
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation acknowledgeAlert($userInput : acknowledgeAlertInput!){
+                    acknowledgeAlert(userInput : $userInput)
+                }
+            `,
+            variables:{
+                userInput : {
+                    facilityId,
+                    sensorId,
+                    alertId,
+                }
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setAlertOperations({
+                        status:'Failed',
+                        function:'acknowledgeAlert',
+                        facilityId,
+                        sensorId,
+                        alertId,
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setAlertOperations({
+                    status:'Success',
+                    function:'acknowledgeAlert',
+                    facilityId,
+                    sensorId,
+                    alertId,
+                }))
+                dispatch(userActions.acknowledgeAlert({
+                    facilityId,
+                    sensorId,
+                    alertId,
+                }))
+            }).catch(err=>{
+                dispatch(userActions.setAlertOperations({
+                    status:'Failed',
+                    function:'acknowledgeAlert',
+                    facilityId,
+                    sensorId,
+                    alertId,
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
+export const deleteAlert = (facilityId,sensorId,alertId) =>{
+    return (dispatch ) => {
+        dispatch(userActions.setAlertOperations({
+            function : 'deleteAlert',
+            status:'Pending',
+            facilityId,
+            sensorId,
+            alertId,
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation deleteAlert($userInput : deleteAlertInput!){
+                    deleteAlert(userInput : $userInput)
+                }
+            `,
+            variables:{
+                userInput : {
+                    facilityId,
+                    sensorId,
+                    alertId,
+                }
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setAlertOperations({
+                        status:'Failed',
+                        function:'deleteAlert',
+                        facilityId,
+                        sensorId,
+                        alertId,
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setAlertOperations({
+                    status:'Success',
+                    function:'deleteAlert',
+                    facilityId,
+                    sensorId,
+                    alertId,
+                }))
+            }).catch(err=>{
+                dispatch(userActions.setAlertOperations({
+                    status:'Failed',
+                    function:'deleteAlert',
+                    facilityId,
+                    sensorId,
+                    alertId,
                     error:'Something went wrong.'
                 }))
             })

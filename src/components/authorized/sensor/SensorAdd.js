@@ -46,7 +46,7 @@ const SensorAdd = ({facilityId,submitted}) => {
                 variant: 'error',
             })
         }
-    },[addSensorOperation,dispatch,enqueueSnackbar])
+    },[addSensorOperation,dispatch,enqueueSnackbar,submitted])
     const nameValidation = (e) =>{
         if(!e){
             e = name
@@ -93,15 +93,15 @@ const SensorAdd = ({facilityId,submitted}) => {
     }
     //Change Handlers
     const nameChangeHandler = (e) => {
-        setName(e.target.value.trim())
+        setName(e.target.value)
         nameValidation(e.target.value.trim());
     }
     const descriptionChangeHandler = (e) => {
-        setDescription(e.target.value.trim())
+        setDescription(e.target.value)
         descriptionValidation(e.target.value.trim())
     }
     const sensorTypeChangeHandler = (e) => {
-        setSensorType(e.target.value.trim())
+        setSensorType(e.target.value)
         sensorTypeValidation(e.target.value.trim())
     }
     const gpioChangeHandler = (e) => {
