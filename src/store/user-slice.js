@@ -165,6 +165,16 @@ const userSlice = createSlice({
             const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
             const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
             state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts = state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.filter(alert=> alert._id !== action.payload.alertId)
+        },
+        addAlert(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.push({...action.payload.alert,operations:alertOperations})
+        },
+        triggeredSensor(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].triggered =  action.payload.value
         }
     }   
 });
@@ -704,6 +714,7 @@ export const deleteAlert = (facilityId,sensorId,alertId) =>{
             })
     }
 }
+
 
 export default userSlice.reducer;
 

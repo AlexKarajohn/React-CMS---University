@@ -30,28 +30,26 @@ const Dashboard = () => {
         history.push(routes.alerts.path)
     }
     useEffect(()=>{
-        console.log('lol')
         let totalSensorsTemp = 0;
         let totalAlertsTemp =0;
         let totalFacilitiesTemp =0;
         if(user.facilities.items.length>0){
-                user.facilities.items.forEach(facility=>{
-                    totalFacilitiesTemp++;
-                    if(facility.sensors.length > 0){
-                        facility.sensors.forEach(sensor=>{
-                            totalSensorsTemp++;
-                            sensor.alerts.forEach(alert=>{
-                                if(!alert.acknowledged)
-                                totalAlertsTemp++;
-                            })
+            user.facilities.items.forEach(facility=>{
+                totalFacilitiesTemp++;
+                if(facility.sensors.length > 0){
+                    facility.sensors.forEach(sensor=>{
+                        totalSensorsTemp++;
+                        sensor.alerts.forEach(alert=>{
+                            if(!alert.acknowledged)
+                            totalAlertsTemp++;
                         })
-                    }
-                })
-                console.log(totalAlertsTemp)
-                setTotalFacilities(totalFacilitiesTemp);
-                setTotalSensors(totalSensorsTemp);
-                setTotalAlerts(totalAlertsTemp);
-            }
+                    })
+                }
+            })
+            setTotalFacilities(totalFacilitiesTemp);
+            setTotalSensors(totalSensorsTemp);
+            setTotalAlerts(totalAlertsTemp);
+        }
     },[user.facilities.items])
     if(!user){
         return <div>something went wrong!</div>

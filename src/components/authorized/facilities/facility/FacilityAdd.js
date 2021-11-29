@@ -124,7 +124,6 @@ const FacilityAdd = ({submitted}) => {
                         SUBMIT
                     </Button>
                 </Grid>
-                
             </Grid>
         </Card>
     )

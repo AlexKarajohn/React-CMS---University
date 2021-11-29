@@ -27,4 +27,4 @@ export const store = function configureStore(preloadedState) {
       preloadedState, composeEnhancers(applyMiddleware(routerMiddleware(history), thunk)),
     )
     return store
-  }
+}

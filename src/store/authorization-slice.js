@@ -102,7 +102,7 @@ export const login = (email,password) =>{
                     status:'Success',
                     function:'login'
                 }))
-                localStorage.setItem('token',`Bearer ${result.data.loginUser.token}`);
+                localStorage.setItem('token',result.data.loginUser.token);
             }).catch(err=>{
                 dispatch(authorizationActions.setOperations({
                     status:'Failed',
