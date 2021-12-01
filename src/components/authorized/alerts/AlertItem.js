@@ -46,7 +46,7 @@ const AlertsItem = ({alert,facilityId,sensorId}) =>{
             }))
         }
     },[alert,dispatch,enqueueSnackbar,facilityId,sensorId])
-
+  
     const acknowledgeOnClickHandler = ( ) =>{
         dispatch(acknowledgeAlert(facilityId,sensorId,alert._id))
     }
@@ -57,7 +57,7 @@ const AlertsItem = ({alert,facilityId,sensorId}) =>{
     <IconButton aria-label="delete" size="small" color="error" onClick={deleteOnClickHandler}>
         <DeleteIcon fontSize="small" />
     </IconButton> : ''
-    
+    const formattedDate = new Date(Number(alert.time)).toString().split('(')[0]
     return (
         <Badge badgeContent={badgeContent} sx={{width:'100%'}} anchorOrigin={{
             vertical: 'top',
@@ -70,7 +70,7 @@ const AlertsItem = ({alert,facilityId,sensorId}) =>{
                 alignItems="center" 
             >
             <Typography fontSize={12} sx={{width:'100%'}} align='center'>
-                {Date(alert.time).split('(')[0]}
+                {formattedDate}
             </Typography>
             {!alert.acknowledged && 
                 <Button onClick={acknowledgeOnClickHandler} xs={{width:'100%'}} variant='outlined' color='error'> 

@@ -19,7 +19,6 @@ const socketIO = {
                 socket.connect();
             }
         });
-    
         socket.on('addAlert',(data)=>{
             importedStore.dispatch(userActions.addAlert(data))
         })

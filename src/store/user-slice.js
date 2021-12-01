@@ -25,7 +25,7 @@ const alertOperations = {
 
 const initialUserState = {
     user: {
-        email : 'placeholder@placeholder.gr',
+        email : '',
         detailed: false,
         facilities : {
             items: [],
@@ -167,13 +167,28 @@ const userSlice = createSlice({
             state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts = state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.filter(alert=> alert._id !== action.payload.alertId)
         },
         addAlert(state,action){
+            console.log(action.payload)
             const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            console.log(facilityIndex)
+            if(facilityIndex===-1){
+                console.log('facility Not Found')
+                return
+            }
+            console.log('before Find Sensor Index')
             const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
+            console.log(sensorIndex)
+            if(sensorIndex===-1)
+                return
+            
             state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.push({...action.payload.alert,operations:alertOperations})
         },
         triggeredSensor(state,action){
             const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            if(facilityIndex===-1)
+                return
             const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(sensor=> sensor._id === action.payload.sensorId)
+            if(!sensorIndex===-1)
+                return
             state.user.facilities.items[facilityIndex].sensors[sensorIndex].triggered =  action.payload.value
         }
     }   
@@ -717,161 +732,3 @@ export const deleteAlert = (facilityId,sensorId,alertId) =>{
 
 
 export default userSlice.reducer;
-
-
-
-/*
-const initialUserState = {
-    user: {
-        email : 'placeholder@placeholder.gr',
-        facilities : {
-            items: [
-                {
-                    _id: '1',
-                    name:'Facility One',
-                    description : 'The first one',
-                    enabled : true,
-                    triggered: true,
-                    status: true,
-                    sensors : [
-                        {
-                            _id: '1',
-                            name: 'Sensor One',
-                            pin : 3,
-                            description: 'the first one',
-                            triggered: false,
-                            triggerType: 'NC',
-                            enabled: true,
-                            alerts:[
-                                {
-                                    _id:'1',
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    _id:'1',
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    _id:'1',
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    _id:'1',
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: true,
-                                },
-                                {
-                                    _id:'1',
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: true,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                            ]
-                        },
-                        {
-                            _id: '2',
-                            name: 'Sensor Two',
-                            pin : 2,
-                            description: 'the second one',
-                            triggered: true,
-                            triggerType: 'NC',
-                            enabled: false,
-                            alerts:[
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: true,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: true,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                            ]
-                        },
-                        {
-                            _id: '3',
-                            name: 'Sensor Three',
-                            pin : 4,
-                            description: 'the third one',
-                            triggered: true,
-                            triggerType: 'NO',
-                            enabled: true,
-                            alerts:[
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: true,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: true,
-                                },
-                                {
-                                    sensor : '1',
-                                    time : Date.now(),
-                                    acknowledged: false,
-                                },
-                            ]
-                        },
-                    ],
-                }
-            ],
-            detailed: true
-        },
-        alerts: [],
-        sensors : []
-    },
-    operations: {
-
-    }
-}
-*/
