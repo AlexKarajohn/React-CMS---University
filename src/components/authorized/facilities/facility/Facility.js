@@ -22,7 +22,7 @@ import { layoutActions } from "../../../../store/layout-slice";
 import { useDispatch } from "react-redux";
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import { deleteFacility,getFacility, updateFacility, userActions } from "../../../../store/user-slice";
+import { deleteFacility,facilityPair,getFacility, updateFacility, userActions } from "../../../../store/user-slice";
 import { useSnackbar } from 'notistack';
 import { history } from "../../../../store/store";
 import routes from "../../../../assets/routes/routes";
@@ -56,6 +56,11 @@ const Facility = ({match,location}) => {
             
             dispatch(deleteFacility(facility._id));
         }
+        if(facility?.facilityPair){
+            alert('Pairing code copied to clipboard')
+            console.log(facility.facilityPair)
+            navigator.clipboard.writeText(facility.facilityPair)
+        }
         if(deleteFacilityOperation.status==='Success'){
             
             dispatch(userActions.setOperations({function:'deleteFacility'}));
@@ -83,6 +88,10 @@ const Facility = ({match,location}) => {
                 variant: 'error',
             })
         }
+        return (()=>{
+            if(facility)
+            dispatch(userActions.clearFacilityPair({facilityId: facility._id}))
+        })
     },[updateFacilityOperation,deleteFacilityOperation,dispatch,facility,enqueueSnackbar])
 
     const [name,setName] = useState('');
@@ -180,6 +189,9 @@ const Facility = ({match,location}) => {
             message: `Are you sure you want to delete ${facility.name}`
         }))
     }
+    const pairingOnClickHandler = ( ) =>{
+        dispatch(facilityPair(facility._id))
+    }
     if(!facility){
         return <div>Loading</div>
     }
@@ -217,62 +229,58 @@ const Facility = ({match,location}) => {
                             
                         }} invisible={!editState}>
                         <Card sx={{width:'100%'}}>
-                        <Grid item   xs={12} variant='h4'align='center' sx={{height:'80px'}}>
-                            <Stack  
-                                direction="column"
-                                justifyContent='center'
-                                alignItems="center"
+                            <Grid item   xs={12} variant='h4'align='center' sx={{height:'80px'}}>
+                                <Stack  
+                                    direction="column"
+                                    justifyContent='center'
+                                    alignItems="center"
+                                    >
+                                    <Typography sx={{height:'30px',width:'100%'}} align='center'>
+                                    Name: 
+                                    </Typography>
+                                    {editState ? 
+                                    <TextField
+                                        value={name}
+                                        onChange={nameChangeHandler}
+                                        size='small'
+                                        error={nameError.trim().length >0}
+                                        inputProps={{min: 0, style: { textAlign: 'center' }}}
+                                        helperText={nameError}
+                                        sx={{height:'30px'}}
+                                    />
+                                    : 
+                                    <Typography sx={{height:'30px',width:'100%'}} align='center'>
+                                        {facility.name}
+                                    </Typography>
+                                    }
+                                </Stack>
+                            </Grid>
+                            <Grid item xs={12} variant='h6' align='center' sx={{height:'80px'}}>
+                                <Stack  
+                                    direction="column"
+                                    justifyContent='center'
+                                    alignItems="center"
                                 >
-                                <Typography sx={{height:'30px',width:'100%'}} align='center'>
-                                Name: 
-                                </Typography>
-                                {editState ? 
-                                <TextField
-                                    value={name}
-                                    onChange={nameChangeHandler}
-                                    size='small'
-                                    error={nameError.trim().length >0}
-                                    inputProps={{min: 0, style: { textAlign: 'center' }}}
-                                    helperText={nameError}
-                                    sx={{height:'30px'}}
-                                />
-                                : 
-                                <Typography sx={{height:'30px',width:'100%'}} align='center'>
-                                    {facility.name}
-                                </Typography>
-                                }
-                            </Stack>
-                        </Grid>
-                        <Grid item xs={12} variant='h6' align='center' sx={{height:'80px'}}>
-                            <Stack  
-                                direction="column"
-                                justifyContent='center'
-                                alignItems="center"
-                            >
-                                <Typography sx={{height:'30px',width:'100%'}} align='center'>
-                                Description : 
-                                </Typography>
-                                {editState ? 
-                                <TextField
-                                    value={description}
-                                    onChange={descriptionChangeHandler}
-                                    size='small'
-                                    error={descriptionError.trim().length >0}
-                                    inputProps={{min: 0, style: { textAlign: 'center' }}}
-                                    helperText={descriptionError}
-                                    sx={{height:'30px'}}
-                                />
-                                : 
-                                <Typography sx={{height:'30px',width:'100%'}} align='center'>
-                                    {facility.description}
-                                </Typography>
-                                }
-                            </Stack> 
-                        </Grid>
-                       
-                        
-                        
-                        
+                                    <Typography sx={{height:'30px',width:'100%'}} align='center'>
+                                    Description : 
+                                    </Typography>
+                                    {editState ? 
+                                    <TextField
+                                        value={description}
+                                        onChange={descriptionChangeHandler}
+                                        size='small'
+                                        error={descriptionError.trim().length >0}
+                                        inputProps={{min: 0, style: { textAlign: 'center' }}}
+                                        helperText={descriptionError}
+                                        sx={{height:'30px'}}
+                                    />
+                                    : 
+                                    <Typography sx={{height:'30px',width:'100%'}} align='center'>
+                                        {facility.description}
+                                    </Typography>
+                                    }
+                                </Stack> 
+                            </Grid>
                             <Grid  
                                 container
                                 direction="row"
@@ -282,7 +290,7 @@ const Facility = ({match,location}) => {
                                 <Grid item 
                                     xs={12}
                                     sm={4}
-                                   
+                                
                                 >
                                     <Stack direction="row"
                                         justifyContent={{xs: 'center',sm:'flex-start'}}
@@ -299,20 +307,20 @@ const Facility = ({match,location}) => {
                                 <Grid item 
                                     xs={12}
                                     sm={4}
-                                   
+                                
                                 >
                                     <Stack direction="row"
                                         justifyContent='center'
                                         alignItems="center"
                                     >
-                                        Triggered : {facility.triggered ? <ReportIcon fontSize='large'/> : <CheckCircleIcon fontSize='large'/>}
+                                        Status now : {facility.triggered ? <ReportIcon fontSize='large'/> : <CheckCircleIcon fontSize='large'/>}
                                     </Stack>
                                 </Grid>
                                 <Grid item 
                                     xs={12}
                                     sm={4}
-                                   
-   
+                                
+
                                     justifyContent={{xs: 'center',sm:'flex-end'}}
                                     alignItems="center"
                                 >
@@ -324,33 +332,44 @@ const Facility = ({match,location}) => {
                                     </Stack>
                                 </Grid>
                                 <Grid item xs={12} align='center' >
-                            <Stack  
-                                direction="row"
-                                justifyContent='center'
-                                alignItems="center"
-                             
-                            >
-                                <Button variant="contained" color='error' sx={{marginRight:2}} onClick={deleteFacilityOnClickHandler}>
-                                    <DeleteIcon/> DELETE
-                                </Button>
-                                <Button 
-                                    variant="contained" 
-                                    sx={{minWidth:'120px'}} 
-                                    onClick={editFacilityOnClickHandler} 
-                                    onMouseEnter={()=>{
-                                        editState && nameValidation();
-                                        editState && descriptionValidation();
-                                    }} 
-                                    disabled={hasErrors}
-                                >
-                                    {!editState ? <><EditIcon/> EDIT </> : <> <SendIcon/>UPDATE</>}
-                                </Button>
-                            </Stack> 
+                                    <Stack  
+                                        direction="row"
+                                        justifyContent='center'
+                                        alignItems="center"
+                                    
+                                    >
+                                        <Button variant="contained" color='error' sx={{marginRight:2}} onClick={deleteFacilityOnClickHandler}>
+                                            <DeleteIcon/> DELETE
+                                        </Button>
+                                        <Button 
+                                            variant="contained" 
+                                            sx={{minWidth:'120px'}} 
+                                            onClick={editFacilityOnClickHandler} 
+                                            onMouseEnter={()=>{
+                                                editState && nameValidation();
+                                                editState && descriptionValidation();
+                                            }} 
+                                            disabled={hasErrors}
+                                        >
+                                            {!editState ? <><EditIcon/> EDIT </> : <> <SendIcon/>UPDATE</>}
+                                        </Button>
+                                    </Stack> 
                             
-                        </Grid>
-                      
-                            </Grid>
-                            
+                                </Grid>
+                                <Grid item xs={12} align='center' >
+                                    <Stack  
+                                        direction="row"
+                                        justifyContent='center'
+                                        alignItems="center"
+                                    
+                                    >
+                                        <Button variant="contained" color='error' sx={{marginRight:2}} onClick={pairingOnClickHandler}>
+                                            Create Pairing Code
+                                        </Button>
+                                    
+                                    </Stack> 
+                                </Grid>   
+                        </Grid>            
                         </Card>
                         </Badge>
                     </Grid>

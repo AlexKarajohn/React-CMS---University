@@ -67,6 +67,7 @@ export const login = (email,password) =>{
                                     items  {
                                         _id
                                         name
+                                        status
                                         sensors{
                                             _id
                                             triggered

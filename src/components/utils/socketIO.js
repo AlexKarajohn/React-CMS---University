@@ -30,6 +30,13 @@ const socketIO = {
                     value : data.value
                 }))
         })
+        socket.on('facilityStatus',(data)=>{
+            importedStore.dispatch(
+                userActions.facilityStatus({
+                    facilityId: data.facilityId,
+                    value : data.value
+                }))
+        })
     },   
     disconnect: ()=>{
         socket.offAny();

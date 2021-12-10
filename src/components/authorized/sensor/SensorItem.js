@@ -39,7 +39,7 @@ const SensorItem = ({sensor,facilityId}) => {
     const [gpio,setGpio] = useState('');
     const [enable,setEnable] = useState(false);
     const dispatch = useDispatch()
-    const allowedGPIOPins = [3,5,7,8,10,11,12,13,15,16,18,19,21,22,23,24]
+    const allowedGPIOPins = [4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
     const [editState,setEditState] = useState(false);
     const deleteSensorOnClickHandler = ( ) =>{
         dispatch(layoutActions.createDialog({
@@ -293,10 +293,10 @@ const SensorItem = ({sensor,facilityId}) => {
                    
                         >
                             <Grid item>
-                                <Typography>Triggered :</Typography>
+                                <Typography> Status now  :</Typography>
                             </Grid>
                             <Grid item>
-                                {sensor.triggered ? <CheckCircleIcon/> : <ReportIcon/>}
+                                {sensor.triggered ?  <ReportIcon/> :<CheckCircleIcon/>}
                             </Grid>
                     </Grid>
                     <Grid item 
@@ -441,13 +441,17 @@ const SensorItem = ({sensor,facilityId}) => {
                         Alerts
                     </Grid>
                     <Grid item sx={{width:'100%'}}  align='center' >
+                        {expanded && 
                         <List sx={{overflowX: 'hidden',maxHeight:'450px'}}>
                             {
-                                    sensor.alerts.map(alert=>{
-                                    return <ListItem key={uuid()} xs={{width:'100%'}}><AlertItem alert={alert} facilityId={facilityId} sensorId={sensor._id}/></ListItem>
+                                    sensor.alerts.map((alert,index)=>{
+                                        // if(index>15)
+                                        // return null;
+                                    return <ListItem key={alert._id} xs={{width:'100%'}}><AlertItem alert={alert} facilityId={facilityId} sensorId={sensor._id}/></ListItem>
                                 })
                             }
                         </List>
+                        }
                     </Grid>
                 </Grid>   
               

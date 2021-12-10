@@ -54,9 +54,9 @@ const AlertsItem = ({alert,facilityId,sensorId}) =>{
         dispatch(deleteAlert(facilityId,sensorId,alert._id))
     }
     const badgeContent =  alert.acknowledged ?
-    <IconButton aria-label="delete" size="small" color="error" onClick={deleteOnClickHandler}>
-        <DeleteIcon fontSize="small" />
-    </IconButton> : ''
+        <IconButton aria-label="delete" size="small" color="error" onClick={deleteOnClickHandler} disabled={alert.operations.deleteAlert.status === 'Pending'}>
+            <DeleteIcon fontSize="small" />
+        </IconButton> : ''
     const formattedDate = new Date(Number(alert.time)).toString().split('(')[0]
     return (
         <Badge badgeContent={badgeContent} sx={{width:'100%'}} anchorOrigin={{

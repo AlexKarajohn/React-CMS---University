@@ -67,8 +67,14 @@ const userSlice = createSlice({
     reducers: {
         setUser(state,action){
             const facilitiesItems = action.payload.facilities.items.map(item=>{
-                return {...item,detailed: false}
+                let isTriggered = false;
+                item.sensors.forEach(sensor=>{
+                    if(sensor.triggered)
+                        isTriggered = true;
+                })
+                return {...item,detailed: false,triggered: isTriggered}
             })
+            
             
             action.payload.facilities.items = facilitiesItems;
             state.user = {
@@ -94,8 +100,20 @@ const userSlice = createSlice({
         },
         setAlertOperations(state,action){
             const facilityIndex = state.user.facilities.items.findIndex(item => item._id === action.payload.facilityId);
+            if(facilityIndex===-1){
+                console.log('facility Not Found')
+                return
+            }
             const sensorIndex = state.user.facilities.items[facilityIndex].sensors.findIndex(item=>item._id === action.payload.sensorId)
+            if(sensorIndex===-1){
+                console.log('sensorIndex Not Found')
+                return
+            }
             const alertIndex = state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.findIndex(item => item._id === action.payload.alertId)
+            if(alertIndex===-1){
+                console.log('alertIndex Not Found')
+                return
+            }
             state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts[alertIndex].operations[action.payload.function] = {
                 status : action.payload.status || '',
                 error : action.payload.error || undefined
@@ -180,7 +198,7 @@ const userSlice = createSlice({
             if(sensorIndex===-1)
                 return
             
-            state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.push({...action.payload.alert,operations:alertOperations})
+            state.user.facilities.items[facilityIndex].sensors[sensorIndex].alerts.unshift({...action.payload.alert,operations:alertOperations})
         },
         triggeredSensor(state,action){
             const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
@@ -190,7 +208,34 @@ const userSlice = createSlice({
             if(!sensorIndex===-1)
                 return
             state.user.facilities.items[facilityIndex].sensors[sensorIndex].triggered =  action.payload.value
+            let isTriggered=false;
+            state.user.facilities.items[facilityIndex].sensors.forEach(sensor=>{
+                if(sensor.triggered === true){
+                    isTriggered = true;
+                }
+            })
+            state.user.facilities.items[facilityIndex].triggered = isTriggered
+        },
+        facilityStatus(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            if(facilityIndex===-1)
+                return
+            state.user.facilities.items[facilityIndex].status= action.payload.value
+        },
+        facilityPair(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            if(facilityIndex===-1)
+                return
+            state.user.facilities.items[facilityIndex].facilityPair= action.payload.token
+        },
+        clearFacilityPair(state,action){
+            const facilityIndex = state.user.facilities.items.findIndex(facility=>facility._id === action.payload.facilityId)
+            if(facilityIndex===-1)
+                return
+            state.user.facilities.items[facilityIndex].facilityPair = undefined
         }
+
+
     }   
 });
 export const userActions = userSlice.actions;
@@ -210,6 +255,7 @@ export const getUser = () =>{
                             items  {
                                 _id
                                 name
+                                status
                                 sensors{
                                     _id
                                     triggered
@@ -262,7 +308,6 @@ export const getFacility = (facilityId) =>{
                         _id
                         name
                         description
-                        triggered
                         status
                         enabled
                         sensors{
@@ -730,5 +775,48 @@ export const deleteAlert = (facilityId,sensorId,alertId) =>{
     }
 }
 
-
+export const facilityPair = (facilityId) =>{
+    return (dispatch ) => {
+        dispatch(userActions.setOperations({
+            function : 'facilityPair',
+            status:'Pending',
+        }))
+        const graphqlQuery = {
+            query: ` 
+                mutation facilityPair($userInput: facilityPairInput!){
+                    facilityPair(userInput : $userInput)
+                }
+            `,
+            variables : {
+                userInput : {
+                    facilityId
+                }
+            }
+        }
+        graphqlFetch(graphqlQuery)
+            .then(result=>{
+                if(result?.errors?.length > 0){
+                    dispatch(userActions.setOperations({
+                        status:'Failed',
+                        function:'facilityPair',
+                        error:result.errors[0].message
+                    }))
+                    return;
+                }
+                dispatch(userActions.setOperations({
+                    status:'Success',
+                    function:'facilityPair'
+                }))
+               //result.data.facilityPair
+                
+                dispatch(userActions.facilityPair({facilityId,token: result.data.facilityPair}))
+            }).catch(err=>{
+                dispatch(userActions.setOperations({
+                    status:'Failed',
+                    function:'facilityPair',
+                    error:'Something went wrong.'
+                }))
+            })
+    }
+}
 export default userSlice.reducer;

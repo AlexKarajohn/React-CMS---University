@@ -46,7 +46,7 @@ const Facilities = () => {
              </Grid>       
                 {facilities.map(facility=>{
                     return (
-                        <Grid item sx={{width:'100%'}} key={uuid()}>
+                        <Grid item sx={{width:'100%'}} key={facility._id}>
                             <FacilityListItem facility={facility}/>
                         </Grid>       
                     )

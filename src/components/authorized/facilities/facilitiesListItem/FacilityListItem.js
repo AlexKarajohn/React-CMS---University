@@ -42,12 +42,16 @@ const FacilityListItem = (props) =>{
 
         history.push(routes.facility.path.replace(':facilityId',props.facility._id))
     }
+
+    let alerted = false;
+    if(!props.facility.status || nonAcknowledged > 0)
+        alerted = true
     return (
         <Badge badgeContent={badgeContent} sx={{width:'100%'}} anchorOrigin={{
             vertical: 'top',
             horizontal: 'left',
           }}>
-            <Card sx={{width:'100%'}} onClick={historyPushHandler}>
+            <Card sx={{width:'100%',backgroundColor: (alerted ? '#FF8181' : '')}} onClick={historyPushHandler}>
                 <Grid
                     container
                     direction="row"
@@ -97,10 +101,10 @@ const FacilityListItem = (props) =>{
                     xs={12}
                     >   
                         <Grid item>
-                            Triggered : 
+                            Status now : 
                         </Grid>    
                         <Grid item>
-                           {props.facility.triggered ? <CheckCircleIcon/>: <ReportIcon/> }
+                           {props.facility.triggered ? <ReportIcon/>: <CheckCircleIcon/> }
                         </Grid>    
                     </Grid>
                 </Grid>
