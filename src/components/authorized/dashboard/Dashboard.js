@@ -27,7 +27,7 @@ const Dashboard = () => {
         history.push(routes.facilities.path)
     }
     const alertsClickHandler = () => {
-        history.push(routes.alerts.path)
+        history.push(routes.facilities.path)
     }
     useEffect(()=>{
         let totalSensorsTemp = 0;
