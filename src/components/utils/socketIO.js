@@ -41,8 +41,10 @@ const socketIO = {
         })
     },   
     disconnect: ()=>{
-        //socket.offAny();
-        socket.disconnect();
+        if(socket){
+            socket.offAny();
+            socket.disconnect();
+        }
     }
 }
 
