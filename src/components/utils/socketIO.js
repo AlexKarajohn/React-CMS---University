@@ -6,9 +6,11 @@ let socket;
 const socketIO = {
     connect: ()=>{
         socket = io(global_vars.socketUrl,{
+    
             auth: {
                 token : localStorage.getItem('token')
-            }
+            },
+            secure:true
         });
         socket.on("connect", () => {
             console.log('SocketIO: Connected')
